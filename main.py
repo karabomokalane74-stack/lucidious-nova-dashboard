@@ -83,3 +83,32 @@ def trading_command(
         "action": "stop",
         "message": "Trading remains disabled until a bridge is implemented."
 }
+@app.get("/api/signal")
+def get_signal(
+    symbol: str,
+    platform: str,
+    x_api_key: str | None = Header(default=None)
+):
+    check_api_key(x_api_key)
+
+    platform = platform.upper()
+
+    if platform not in ("MT4", "MT5"):
+        raise HTTPException(
+            status_code=400,
+            detail="Platform must be MT4 or MT5."
+        )
+
+    if not symbol.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="A trading symbol is required."
+        )
+
+    return {
+        "platform": platform,
+        "symbol": symbol.upper(),
+        "signal": "NONE",
+        "message": "Waiting for a verified trading signal."
+    }
+    
