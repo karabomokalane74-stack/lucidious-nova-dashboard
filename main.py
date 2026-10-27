@@ -321,3 +321,15 @@ def smc_ict_signal(
         "message": "Preliminary OHLC analysis only; verify before trading."
     }
 
+@app.get("/api/markets")
+def get_supported_markets(
+    x_api_key: str | None = Header(default=None)
+):
+    check_api_key(x_api_key)
+
+    return {
+        "name": "Lucidious Nova EA",
+        "markets": SUPPORTED_MARKETS,
+        "trading_enabled": TRADING_ENABLED,
+        "message": "Market list configured. Live prices and order execution are not connected yet."
+    }
