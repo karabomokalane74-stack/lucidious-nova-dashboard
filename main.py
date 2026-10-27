@@ -14,6 +14,35 @@ app = FastAPI(
 API_KEY = os.getenv("LUCIDIOUS_API_KEY", "")
 TRADING_ENABLED = False
 
+# Supported markets for Lucidious Nova EA.
+# Actual broker symbol names must be verified before trading.
+
+SUPPORTED_MARKETS = {
+    "forex": [
+        "EURUSD",
+        "GBPUSD",
+        "USDJPY",
+        "AUDUSD",
+        "USDCAD",
+        "USDCHF",
+        "NZDUSD",
+        "EURGBP",
+        "EURJPY",
+        "GBPJPY",
+        "USDZAR",
+    ],
+    "metals": [
+        "XAUUSD",  # Gold
+        "XAGUSD",  # Silver
+    ],
+    "crypto": [
+        "BTCUSD",  # Bitcoin
+    ],
+    "indices": [
+        "NAS100",  # Nasdaq 100; broker naming may vary
+    ],
+}
+
 
 def check_api_key(provided_key: str | None):
     if not API_KEY:
