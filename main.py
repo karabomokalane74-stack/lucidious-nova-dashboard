@@ -333,3 +333,14 @@ def get_supported_markets(
         "trading_enabled": TRADING_ENABLED,
         "message": "Market list configured. Live prices and order execution are not connected yet."
     }
+
+@app.get("/api/public-config")
+def public_config():
+    return {
+        "name": "Lucidious Nova EA",
+        "supported_markets": SUPPORTED_MARKETS,
+        "platforms": ["MT4", "MT5"],
+        "trading_enabled": False,
+        "live_prices_connected": False,
+        "message": "Market configuration only. No live trading is enabled."
+    }
