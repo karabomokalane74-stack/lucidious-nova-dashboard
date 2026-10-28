@@ -1,1 +1,191 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080d16">
+  <title>Lucidious Nova EA</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #080d16;
+      color: #edf3ff;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      padding: 24px 18px;
+      background: #101a2a;
+      border-bottom: 1px solid #263750;
+    }
+    h1 { margin: 0; font-size: 25px; }
+    .brand { color: #55e6b1; }
+    main { max-width: 700px; margin: auto; padding: 18px; }
+    .card {
+      background: #111b2b;
+      border: 1px solid #263750;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    h2 { font-size: 17px; margin-top: 0; }
+    input, button {
+      width: 100%;
+      padding: 13px;
+      border-radius: 9px;
+      font-size: 15px;
+      margin-top: 9px;
+    }
+    input {
+      color: white;
+      background: #080d16;
+      border: 1px solid #34465e;
+    }
+    button {
+      background: #55e6b1;
+      color: #07130f;
+      border: 0;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .status { color: #ffc76b; }
+    .market-group { margin-top: 14px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      background: #1d2c40;
+      border: 1px solid #34465e;
+      border-radius: 7px;
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+    .note { color: #aab8cc; font-size: 13px; line-height: 1.5; }
+    footer { text-align: center; color: #8292a8; padding: 20px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🐂 LUCIDIOUS <span class="brand">NOVA EA</span></h1>
+    <p class="note">Multi-market trading control dashboard</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>API Connection</h2>
+      <label for="apiUrl">Your Render API URL</label>
+      <input id="apiUrl" type="url"
+        placeholder="https://your-service.onrender.com"
+        autocomplete="url">
+      <button id="connectBtn">Connect to API</button>
+      <p id="connection" class="status" role="status">Not connected</p>
+    </section>
+
+    <section class="card">
+      <h2>Trading Status</h2>
+      <p>API: <strong id="apiStatus">Not checked</strong></p>
+      <p>Live prices: <strong id="priceStatus">Not connected</strong></p>
+      <p>Order execution: <strong id="tradeStatus">Disabled</strong></p>
+      <p class="note">
+        Trading remains disabled until market data, the trading bridge,
+        and order safeguards are implemented and tested.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Supported Markets</h2>
+      <div id="markets">
+        <p class="note">Connect to the API to load the market list.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Strategy Engine</h2>
+      <p>EMA 9/21: <span class="brand">Configured for analysis</span></p>
+      <p>SMC / ICT: <span class="brand">Basic analysis endpoint configured</span></p>
+      <p class="note">
+        Strategy endpoints currently analyse prices supplied to the API.
+        They do not independently obtain live candles or execute trades.
+      </p>
+    </section>
+  </main>
+
+  <footer>Lucidious Nova EA · Connection and market status</footer>
+
+  <script>
+    const urlInput = document.getElementById("apiUrl");
+    const connectBtn = document.getElementById("connectBtn");
+
+    connectBtn.addEventListener("click", connectAPI);
+
+    async function connectAPI() {
+      const base = urlInput.value.trim().replace(/\/+$/, "");
+      const connection = document.getElementById("connection");
+      const markets = document.getElementById("markets");
+
+      if (!base || !/^https:\/\/[^/]+$/i.test(base)) {
+        connection.textContent =
+          "Enter your full Render URL, beginning with https://";
+        return;
+      }
+
+      connection.textContent = "Connecting...";
+      connectBtn.disabled = true;
+
+      try {
+        const response = await fetch(base + "/api/public-config");
+        if (!response.ok) {
+          throw new Error("API returned HTTP " + response.status);
+        }
+
+        const data = await response.json();
+
+        document.getElementById("apiStatus").textContent =
+          "Online — configuration received";
+        document.getElementById("priceStatus").textContent =
+          data.live_prices_connected ? "Connected" : "Not connected";
+        document.getElementById("tradeStatus").textContent =
+          data.trading_enabled ? "Enabled" : "Disabled";
+
+        markets.replaceChildren();
+        const groups = data.supported_markets || {};
+
+        for (const [group, symbols] of Object.entries(groups)) {
+          const section = document.createElement("div");
+          section.className = "market-group";
+
+          const heading = document.createElement("h3");
+          heading.textContent = group.toUpperCase();
+          section.appendChild(heading);
+
+          const chips = document.createElement("div");
+          chips.className = "chips";
+
+          for (const symbol of symbols) {
+            const chip = document.createElement("span");
+            chip.className = "chip";
+            chip.textContent = symbol;
+            chips.appendChild(chip);
+          }
+
+          section.appendChild(chips);
+          markets.appendChild(section);
+        }
+
+        connection.textContent =
+          "Connected to Lucidious Nova EA API";
+        connection.style.color = "#55e6b1";
+      } catch (error) {
+        document.getElementById("apiStatus").textContent = "Unavailable";
+        connection.textContent =
+          "Connection failed. Check the URL and API deployment.";
+        connection.style.color = "#ff8585";
+        markets.textContent =
+          "Market list could not be loaded. Check the API connection.";
+      } finally {
+        connectBtn.disabled = false;
+      }
+    }
+  </script>
+</body>
+  </html>
+  
