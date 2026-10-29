@@ -10,7 +10,8 @@ app = FastAPI(
     title="Lucidious Nova EA API",
     version="1.0.0",
     description="Backend foundation for MT4 and MT5 trading bridges."
-)app.add_middleware(
+)
+app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
