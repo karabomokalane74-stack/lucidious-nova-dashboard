@@ -3,12 +3,18 @@ import secrets
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, Header, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 app = FastAPI(
     title="Lucidious Nova EA API",
     version="1.0.0",
     description="Backend foundation for MT4 and MT5 trading bridges."
+)app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 API_KEY = os.getenv("LUCIDIOUS_API_KEY", "")
