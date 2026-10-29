@@ -1,209 +1,784 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#101827">
-  
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#080d16">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0e14">
+  <meta name="description" content="Lucidious Nova EA multi-market trading dashboard">
+  <link rel="manifest" href="./manifest.json">
   <title>Lucidious Nova EA</title>
+
   <style>
+    :root {
+      --bg: #090c12;
+      --panel: #121823;
+      --panel2: #192231;
+      --line: #2a3546;
+      --gold: #e5bd65;
+      --gold2: #f6d995;
+      --text: #f3f5fa;
+      --muted: #9ca9bc;
+      --green: #5de0a5;
+      --red: #ff7d87;
+      --radius: 16px;
+    }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
-      background: #080d16;
-      color: #edf3ff;
-      font-family: Arial, sans-serif;
-    }
-    header {
-      padding: 24px 18px;
-      background: #101a2a;
-      border-bottom: 1px solid #263750;
-    }
-    h1 { margin: 0; font-size: 25px; }
-    .brand { color: #55e6b1; }
-    main { max-width: 700px; margin: auto; padding: 18px; }
-    .card {
-      background: #111b2b;
-      border: 1px solid #263750;
-      border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 16px;
-    }
-    h2 { font-size: 17px; margin-top: 0; }
-    input, button {
-      width: 100%;
-      padding: 13px;
-      border-radius: 9px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, Arial, sans-serif;
       font-size: 15px;
-      margin-top: 9px;
+      padding-bottom: 85px;
     }
-    input {
-      color: white;
-      background: #080d16;
-      border: 1px solid #34465e;
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .topbar {
+      padding: 20px 17px 16px;
+      background: linear-gradient(135deg, #191e28, #10141d);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 5;
     }
-    button {
-      background: #55e6b1;
-      color: #07130f;
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bull {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #806a3c;
+      border-radius: 14px;
+      background: #262115;
+      font-size: 27px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 19px;
+      letter-spacing: 1px;
+    }
+
+    .gold { color: var(--gold); }
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; line-height: 1.55; }
+    .top-subtitle { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+
+    main {
+      max-width: 760px;
+      margin: auto;
+      padding: 17px 14px;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .section-heading {
+      margin: 5px 2px 14px;
+      font-size: 20px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 17px;
+      margin-bottom: 14px;
+      min-width: 0;
+    }
+
+    .card h2 {
+      font-size: 15px;
+      margin: 0 0 13px;
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #24251f, #151923 65%);
+      border-color: #51452d;
+    }
+
+    .hero h2 { font-size: 19px; margin: 8px 0; }
+    .hero p { margin: 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--panel2);
+      padding: 13px;
+      border-radius: 12px;
+      min-width: 0;
+    }
+
+    .stat-label { color: var(--muted); font-size: 11px; }
+    .stat-value {
+      display: block;
+      margin-top: 7px;
+      font-size: 15px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      margin-right: 6px;
+    }
+
+    .good { color: var(--green); }
+    .bad { color: var(--red); }
+    .warning { color: var(--gold); }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin: 12px 0 6px;
+    }
+
+    input, select {
+      width: 100%;
+      min-width: 0;
+      padding: 12px;
+      border-radius: 10px;
+      color: var(--text);
+      background: #0b1018;
+      border: 1px solid #344156;
+      outline: none;
+    }
+
+    input:focus, select:focus { border-color: var(--gold); }
+
+    .btn {
+      width: 100%;
       border: 0;
-      font-weight: bold;
-      cursor: pointer;
+      border-radius: 10px;
+      padding: 13px;
+      margin-top: 10px;
+      font-weight: 750;
+      background: var(--gold);
+      color: #17130b;
     }
-    .status { color: #ffc76b; }
-    .market-group { margin-top: 14px; }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .btn:disabled { opacity: .55; cursor: wait; }
+
+    .btn-secondary {
+      color: var(--text);
+      background: #263143;
+      border: 1px solid #39475b;
+    }
+
+    .btn-outline {
+      color: var(--gold2);
+      background: transparent;
+      border: 1px solid #806a3c;
+    }
+
+    .two-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .two-buttons .btn { min-width: 0; }
+
+    .market-group { margin-top: 17px; }
+    .market-group h3 {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 9px;
+    }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+
     .chip {
-      background: #1d2c40;
-      border: 1px solid #34465e;
-      border-radius: 7px;
+      background: #1b2534;
+      border: 1px solid #344156;
+      color: var(--text);
       padding: 8px 10px;
-      font-size: 13px;
+      border-radius: 8px;
+      font-size: 12px;
     }
-    .note { color: #aab8cc; font-size: 13px; line-height: 1.5; }
-    footer { text-align: center; color: #8292a8; padding: 20px; font-size: 12px; }
+
+    .chip.selected {
+      border-color: var(--gold);
+      color: var(--gold2);
+      background: #29251b;
+    }
+
+    .list-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .list-row:last-child { border-bottom: 0; }
+    .list-row strong { font-size: 13px; }
+    .list-row .small { text-align: right; }
+
+    .notice {
+      background: #282318;
+      border: 1px solid #57482a;
+      color: #f1dba9;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.55;
+      margin-top: 12px;
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      padding: 8px 7px calc(8px + env(safe-area-inset-bottom));
+      background: #111722;
+      border-top: 1px solid var(--line);
+    }
+
+    .nav button {
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      border-radius: 10px;
+      padding: 9px 2px;
+      font-size: 10px;
+    }
+
+    .nav button span {
+      display: block;
+      font-size: 19px;
+      margin-bottom: 4px;
+    }
+
+    .nav button.active {
+      color: var(--gold2);
+      background: #29251b;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 16px 10px;
+    }
+
+    @media (min-width: 600px) {
+      main { padding: 24px; }
+      .topbar { padding-left: max(20px, calc((100% - 712px) / 2)); }
+      .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
   </style>
 </head>
+
 <body>
-  <header>
-    <h1>🐂 LUCIDIOUS <span class="brand">NOVA EA</span></h1>
-    <p class="note">Multi-market trading control dashboard</p>
+  <header class="topbar">
+    <div class="brand-row">
+      <div class="bull" aria-hidden="true">🐂</div>
+      <div>
+        <h1>LUCIDIOUS <span class="gold">NOVA EA</span></h1>
+        <p class="top-subtitle">MULTI-MARKET TRADING CONTROL</p>
+      </div>
+    </div>
   </header>
 
   <main>
-    <section class="card">
-      <h2>API Connection</h2>
-      <label for="apiUrl">Your Render API URL</label>
-      <input id="apiUrl" type="url"
-        placeholder="https://your-service.onrender.com"
-        autocomplete="url">
-      <button id="connectBtn">Connect to API</button>
-      <p id="connection" class="status" role="status">Not connected</p>
-    </section>
+    <!-- DASHBOARD -->
+    <section id="page-dashboard" class="page active">
+      <div class="card hero">
+        <div class="eyebrow">Trading control centre</div>
+        <h2>Trade with a plan.</h2>
+        <p class="small muted">Monitor your API and configure your future trading bridge.</p>
+        <div class="two-buttons" style="margin-top:12px">
+          <button class="btn" id="startBtn" disabled>Start Trading</button>
+          <button class="btn btn-secondary" id="stopBtn">Stop</button>
+        </div>
+        <p class="small muted" style="margin-top:10px">
+          Start is locked until a verified trading bridge is available.
+        </p>
+      </div>
 
-    <section class="card">
-      <h2>Trading Status</h2>
-      <p>API: <strong id="apiStatus">Not checked</strong></p>
-      <p>Live prices: <strong id="priceStatus">Not connected</strong></p>
-      <p>Order execution: <strong id="tradeStatus">Disabled</strong></p>
-      <p class="note">
-        Trading remains disabled until market data, the trading bridge,
-        and order safeguards are implemented and tested.
-      </p>
-    </section>
+      <div class="grid">
+        <div class="stat">
+          <span class="stat-label">API STATUS</span>
+          <strong class="stat-value warning" id="apiStatus">Not connected</strong>
+        </div>
+        <div class="stat">
+          <span class="stat-label">LIVE PRICES</span>
+          <strong class="stat-value" id="priceStatus">Unavailable</strong>
+        </div>
+        <div class="stat">
+          <span class="stat-label">BROKER ACCOUNT</span>
+          <strong class="stat-value" id="brokerStatus">Not connected</strong>
+        </div>
+        <div class="stat">
+          <span class="stat-label">ORDER EXECUTION</span>
+          <strong class="stat-value warning" id="tradeStatus">Disabled</strong>
+        </div>
+      </div>
 
-    <section class="card">
-      <h2>Supported Markets</h2>
-      <div id="markets">
-        <p class="note">Connect to the API to load the market list.</p>
+      <div class="card">
+        <h2>API Connection</h2>
+        <label for="apiUrl">Render API base URL</label>
+        <input id="apiUrl" type="url"
+          placeholder="https://your-service.onrender.com"
+          autocomplete="url" inputmode="url">
+        <button class="btn" id="connectBtn">Connect to API</button>
+        <button class="btn btn-secondary" id="forgetUrlBtn">Clear saved URL</button>
+        <p id="connection" class="small warning" role="status" aria-live="polite">
+          Enter your Render URL to connect.
+        </p>
+        <p class="small muted">
+          Use the base URL only. Do not add /health or /api/public-config.
+          Never enter your secret API key here.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Selected Market</h2>
+        <p id="selectedMarket" class="gold">EURUSD</p>
+        <p class="small muted">Choose a market in the Markets tab. Selection does not place a trade.</p>
       </div>
     </section>
 
-    <section class="card">
-      <h2>Strategy Engine</h2>
-      <p>EMA 9/21: <span class="brand">Configured for analysis</span></p>
-      <p>SMC / ICT: <span class="brand">Basic analysis endpoint configured</span></p>
-      <p class="note">
-        Strategy endpoints currently analyse prices supplied to the API.
-        They do not independently obtain live candles or execute trades.
-      </p>
+    <!-- MARKETS -->
+    <section id="page-markets" class="page">
+      <h2 class="section-heading">Markets</h2>
+      <div class="card">
+        <h2>Available instruments</h2>
+        <p class="small muted">The list below is loaded from your API configuration, not live market prices.</p>
+        <div id="markets">
+          <p class="small muted">Connect to the API to load supported markets.</p>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Selected instrument</h2>
+        <p id="marketSelection" class="gold">EURUSD</p>
+        <p class="small muted">Your broker may use a different symbol suffix. Confirm the exact symbol before trading.</p>
+      </div>
+    </section>
+
+    <!-- BROKERS -->
+    <section id="page-brokers" class="page">
+      <h2 class="section-heading">Broker & Platform</h2>
+      <div class="card">
+        <h2>Connection setup</h2>
+        <label for="brokerName">Broker name</label>
+        <input id="brokerName" placeholder="Enter your broker name">
+        <label for="platform">Platform</label>
+        <select id="platform">
+          <option value="MT5">MetaTrader 5</option>
+          <option value="MT4">MetaTrader 4</option>
+        </select>
+        <label for="accountMode">Account type</label>
+        <select id="accountMode">
+          <option value="demo">Demo account</option>
+          <option value="live">Live account</option>
+        </select>
+        <button class="btn" id="saveBrokerBtn">Save broker preference</button>
+        <p id="brokerMessage" class="small muted" role="status">
+          No broker connection has been verified.
+        </p>
+      </div>
+      <div class="card">
+        <h2>Account information</h2>
+        <div class="list-row">
+          <strong>Account balance</strong>
+          <span class="small muted">Not available</span>
+        </div>
+        <div class="list-row">
+          <strong>Equity</strong>
+          <span class="small muted">Not available</span>
+        </div>
+        <div class="list-row">
+          <strong>Account status</strong>
+          <span class="small warning">Disconnected</span>
+        </div>
+        <div class="notice">
+          Broker preferences are saved locally on this device. This form does not log in to a broker.
+          Do not enter broker passwords, investor passwords, or API secrets here.
+        </div>
+      </div>
+    </section>
+
+    <!-- STRATEGIES / SETTINGS -->
+    <section id="page-settings" class="page">
+      <h2 class="section-heading">Strategies & Settings</h2>
+      <div class="card">
+        <h2>EMA strategy</h2>
+        <div class="list-row">
+          <strong>Fast EMA</strong>
+          <span class="gold">9</span>
+        </div>
+        <div class="list-row">
+          <strong>Slow EMA</strong>
+          <span class="gold">21</span>
+        </div>
+        <p class="small muted">
+          The API can calculate EMA crossover signals from supplied closing prices.
+          It does not independently receive live candles.
+        </p>
+      </div>
+      <div class="card">
+        <h2>SMC / ICT analysis</h2>
+        <div class="list-row">
+          <strong>Market structure</strong>
+          <span class="small muted">Preliminary</span>
+        </div>
+        <div class="list-row">
+          <strong>Liquidity sweep / FVG</strong>
+          <span class="small muted">Preliminary</span>
+        </div>
+        <p class="small muted">
+          Basic analysis is available through the API when valid OHLC candles are supplied.
+          It is not a complete or independently verified trading strategy.
+        </p>
+      </div>
+      <div class="card">
+        <h2>Risk controls</h2>
+        <p class="small muted">
+          Live order execution remains disabled. Stop-loss, position sizing, spread checks,
+          daily loss limits, and demo testing must be verified in the trading bridge before activation.
+        </p>
+        <div class="notice">
+          A strategy signal is not a guarantee of profit. Test on a demo account first.
+        </div>
+      </div>
+      <div class="card">
+        <h2>App information</h2>
+        <p class="small muted">Lucidious Nova EA</p>
+        <p class="small muted">Mobile dashboard · MT4 / MT5 bridge not yet verified</p>
+        <button class="btn btn-secondary" id="refreshBtn">Refresh API configuration</button>
+      </div>
     </section>
   </main>
 
-  <footer>Lucidious Nova EA · Connection and market status</footer>
+  <nav class="nav" aria-label="Main navigation">
+    <button class="active" data-page="dashboard"><span>⌂</span>Dashboard</button>
+    <button data-page="markets"><span>⌁</span>Markets</button>
+    <button data-page="brokers"><span>▣</span>Brokers</button>
+    <button data-page="settings"><span>⚙</span>Strategies</button>
+  </nav>
+
+  <footer>Lucidious Nova EA · Market data and live trading are not connected</footer>
 
   <script>
-    const urlInput = document.getElementById("apiUrl");
-    const savedApiUrl = localStorage.getItem("lucidiousNovaApiUrl");
-if (savedApiUrl) {
-  urlInput.value = savedApiUrl;
-}
-    const connectBtn = document.getElementById("connectBtn");
+    "use strict";
 
-    connectBtn.addEventListener("click", connectAPI);
+    const $ = (id) => document.getElementById(id);
 
-    async function connectAPI() {
-      const base = urlInput.value.trim().replace(/\/+$/, "");
-      localStorage.setItem("lucidiousNovaApiUrl", apiUrl);
-      const connection = document.getElementById("connection");
-      const markets = document.getElementById("markets");
+    const urlInput = $("apiUrl");
+    const connectBtn = $("connectBtn");
+    const connection = $("connection");
+    const marketsContainer = $("markets");
 
-      if (!base || !/^https:\/\/[^/]+$/i.test(base)) {
-        connection.textContent =
-          "Enter your full Render URL, beginning with https://";
+    const STORAGE_URL = "lucidiousNovaApiUrl";
+    const STORAGE_BROKER = "lucidiousNovaBrokerPreferences";
+
+    let selectedSymbol = "EURUSD";
+    let apiConfig = null;
+
+    function readStorage(key) {
+      try {
+        return localStorage.getItem(key);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function writeStorage(key, value) {
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function removeStorage(key) {
+      try {
+        localStorage.removeItem(key);
+      } catch (error) {
+        // Private browsing or storage restrictions may disable local storage.
+      }
+    }
+
+    function setText(id, value) {
+      $(id).textContent = value;
+    }
+
+    function showConnection(message, kind = "warning") {
+      connection.textContent = message;
+      connection.className = "small " + kind;
+    }
+
+    function normaliseBaseUrl(value) {
+      return value.trim().replace(/\/+$/, "");
+    }
+
+    function isValidBaseUrl(value) {
+      try {
+        const parsed = new URL(value);
+        return parsed.protocol === "https:" &&
+          parsed.hostname.length > 0 &&
+          parsed.username === "" &&
+          parsed.password === "" &&
+          parsed.search === "" &&
+          parsed.hash === "" &&
+          parsed.pathname === "/";
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function restoreSavedSettings() {
+      const savedUrl = readStorage(STORAGE_URL);
+      if (savedUrl) urlInput.value = savedUrl;
+
+      try {
+        const savedBroker = JSON.parse(readStorage(STORAGE_BROKER) || "null");
+        if (savedBroker) {
+          $("brokerName").value = savedBroker.name || "";
+          $("platform").value = savedBroker.platform || "MT5";
+          $("accountMode").value = savedBroker.mode || "demo";
+        }
+      } catch (error) {
+        // Ignore invalid old settings.
+      }
+    }
+
+    function addMarketChip(symbol) {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip" + (symbol === selectedSymbol ? " selected" : "");
+      chip.textContent = symbol;
+      chip.setAttribute("aria-pressed", String(symbol === selectedSymbol));
+
+      chip.addEventListener("click", () => {
+        selectedSymbol = symbol;
+        setText("selectedMarket", symbol);
+        setText("marketSelection", symbol);
+
+        document.querySelectorAll(".chip").forEach((element) => {
+          const selected = element.textContent === symbol;
+          element.classList.toggle("selected", selected);
+          element.setAttribute("aria-pressed", String(selected));
+        });
+      });
+
+      return chip;
+    }
+
+    function renderMarkets(groups) {
+      marketsContainer.replaceChildren();
+
+      const entries = Object.entries(groups || {});
+      if (!entries.length) {
+        marketsContainer.textContent = "No supported markets were returned by the API.";
         return;
       }
 
-      connection.textContent = "Connecting...";
+      for (const [group, symbols] of entries) {
+        if (!Array.isArray(symbols)) continue;
+
+        const section = document.createElement("div");
+        section.className = "market-group";
+
+        const heading = document.createElement("h3");
+        heading.textContent = group.toUpperCase();
+        section.appendChild(heading);
+
+        const chips = document.createElement("div");
+        chips.className = "chips";
+
+        for (const symbol of symbols) {
+          if (typeof symbol !== "string") continue;
+          chips.appendChild(addMarketChip(symbol));
+        }
+
+        section.appendChild(chips);
+        marketsContainer.appendChild(section);
+      }
+    }
+
+    async function connectAPI() {
+      const base = normaliseBaseUrl(urlInput.value);
+
+      if (!isValidBaseUrl(base)) {
+        showConnection(
+          "Enter your complete HTTPS Render base URL, with no extra path.",
+          "bad"
+        );
+        return;
+      }
+
+      urlInput.value = base;
+      const saved = writeStorage(STORAGE_URL, base);
+
+      showConnection("Connecting to Lucidious Nova API...");
       connectBtn.disabled = true;
+      setText("apiStatus", "Connecting...");
 
       try {
-        const response = await fetch(base + "/api/public-config");
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+
+        let response;
+        try {
+          response = await fetch(base + "/api/public-config", {
+            method: "GET",
+            headers: { "Accept": "application/json" },
+            cache: "no-store",
+            signal: controller.signal
+          });
+        } finally {
+          clearTimeout(timeout);
+        }
+
         if (!response.ok) {
           throw new Error("API returned HTTP " + response.status);
         }
 
         const data = await response.json();
 
-        document.getElementById("apiStatus").textContent =
-          "Online — configuration received";
-        document.getElementById("priceStatus").textContent =
-          data.live_prices_connected ? "Connected" : "Not connected";
-        document.getElementById("tradeStatus").textContent =
-          data.trading_enabled ? "Enabled" : "Disabled";
-
-        markets.replaceChildren();
-        const groups = data.supported_markets || {};
-
-        for (const [group, symbols] of Object.entries(groups)) {
-          const section = document.createElement("div");
-          section.className = "market-group";
-
-          const heading = document.createElement("h3");
-          heading.textContent = group.toUpperCase();
-          section.appendChild(heading);
-
-          const chips = document.createElement("div");
-          chips.className = "chips";
-
-          for (const symbol of symbols) {
-            const chip = document.createElement("span");
-            chip.className = "chip";
-            chip.textContent = symbol;
-            chips.appendChild(chip);
-          }
-
-          section.appendChild(chips);
-          markets.appendChild(section);
+        if (!data || typeof data !== "object" || !data.supported_markets) {
+          throw new Error("The API response did not contain market configuration.");
         }
 
-        connection.textContent =
-          "Connected to Lucidious Nova EA API";
-        connection.style.color = "#55e6b1";
+        apiConfig = data;
+        renderMarkets(data.supported_markets);
+
+        setText("apiStatus", "Online");
+        setText("priceStatus", data.live_prices_connected ? "Connected" : "Not connected");
+        setText("tradeStatus", data.trading_enabled ? "Configured — verify bridge" : "Disabled");
+
+        // The API configuration is not proof of an active broker connection.
+        setText("brokerStatus", "Not connected");
+
+        showConnection(
+          saved
+            ? "Connected. API URL saved on this device."
+            : "Connected. Browser storage is unavailable, so the URL may not persist.",
+          "good"
+        );
       } catch (error) {
-        document.getElementById("apiStatus").textContent = "Unavailable";
-        connection.textContent =
-          "Connection failed. Check the URL and API deployment.";
-        connection.style.color = "#ff8585";
-        markets.textContent =
-          "Market list could not be loaded. Check the API connection.";
+        apiConfig = null;
+        setText("apiStatus", "Unavailable");
+        setText("priceStatus", "Not connected");
+        setText("tradeStatus", "Disabled");
+        setText("brokerStatus", "Not connected");
+
+        const detail = error && error.name === "AbortError"
+          ? "The request timed out."
+          : "Check the URL, Render deployment, and browser CORS permissions.";
+
+        showConnection("Connection failed. " + detail, "bad");
+        marketsContainer.textContent = "Market list unavailable until the API connection works.";
       } finally {
         connectBtn.disabled = false;
       }
     }
+
+    function clearSavedUrl() {
+      removeStorage(STORAGE_URL);
+      urlInput.value = "";
+      apiConfig = null;
+      setText("apiStatus", "Not connected");
+      setText("priceStatus", "Not connected");
+      setText("tradeStatus", "Disabled");
+      showConnection("Saved API URL cleared.", "warning");
+    }
+
+    function saveBrokerPreferences() {
+      const preferences = {
+        name: $("brokerName").value.trim(),
+        platform: $("platform").value,
+        mode: $("accountMode").value
+      };
+
+      const saved = writeStorage(STORAGE_BROKER, JSON.stringify(preferences));
+      setText(
+        "brokerMessage",
+        saved
+          ? "Preferences saved on this device. Broker login is not connected."
+          : "Browser storage is unavailable. Preferences were not saved."
+      );
+      $("brokerMessage").className = "small " + (saved ? "good" : "bad");
+    }
+
+    function stopTradingNotice() {
+      showConnection(
+        "Stop selected. No live trading bridge is connected, so no orders were sent.",
+        "warning"
+      );
+    }
+
+    document.querySelectorAll(".nav button").forEach((button) => {
+      button.addEventListener("click", () => {
+        const page = button.dataset.page;
+
+        document.querySelectorAll(".nav button").forEach((item) => {
+          item.classList.toggle("active", item === button);
+        });
+
+        document.querySelectorAll(".page").forEach((section) => {
+          section.classList.toggle("active", section.id === "page-" + page);
+        });
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+
+    connectBtn.addEventListener("click", connectAPI);
+    $("forgetUrlBtn").addEventListener("click", clearSavedUrl);
+    $("saveBrokerBtn").addEventListener("click", saveBrokerPreferences);
+    $("stopBtn").addEventListener("click", stopTradingNotice);
+    $("refreshBtn").addEventListener("click", () => {
+      if (urlInput.value.trim()) connectAPI();
+      else showConnection("Enter your Render URL first.", "warning");
+    });
+
+    restoreSavedSettings();
+
+    if ("serviceWorker" in navigator && location.protocol === "https:") {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js")
+          .catch((error) => console.error("Service worker registration failed:", error));
+      });
+    }
   </script>
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js")
-      .catch((error) => console.error("App setup failed:", error));
-  });
-}
-</script>
-  
 </body>
-  </html>
-  
+</html>
