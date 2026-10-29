@@ -117,6 +117,10 @@
 
   <script>
     const urlInput = document.getElementById("apiUrl");
+    const savedApiUrl = localStorage.getItem("lucidiousNovaApiUrl");
+if (savedApiUrl) {
+  urlInput.value = savedApiUrl;
+}
     const connectBtn = document.getElementById("connectBtn");
 
     connectBtn.addEventListener("click", connectAPI);
