@@ -127,6 +127,7 @@ if (savedApiUrl) {
 
     async function connectAPI() {
       const base = urlInput.value.trim().replace(/\/+$/, "");
+      localStorage.setItem("lucidiousNovaApiUrl", apiUrl);
       const connection = document.getElementById("connection");
       const markets = document.getElementById("markets");
 
