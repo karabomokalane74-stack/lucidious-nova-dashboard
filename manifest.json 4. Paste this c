@@ -1,0 +1,12 @@
+
+{
+  "name": "Lucidious Nova EA",
+  "short_name": "Lucidious Nova",
+  "description": "Lucidious Nova EA trading dashboard",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080b12",
+  "theme_color": "#101827"
+}
