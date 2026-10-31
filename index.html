@@ -10,14 +10,10 @@
 
 <style>
 :root{
- --gold:#e9b84e;
- --light:#ffe5a0;
- --bg:#080706;
- --panel:rgba(12,11,9,.90);
- --muted:#aaa49a;
+ --gold:#e9b84e;--light:#ffe5a0;--bg:#080706;
+ --panel:rgba(12,11,9,.92);--muted:#aaa49a;
  --border:rgba(233,184,78,.4);
- --green:#65dfa0;
- --red:#ff6262;
+ --green:#65dfa0;--red:#ff6262;
 }
 *{box-sizing:border-box}
 body{
@@ -28,7 +24,6 @@ body{
 button,input,select{font:inherit}
 button,select{cursor:pointer}
 
-/* ROBOTIC BULL BACKGROUND */
 .bull-bg{
  position:fixed;inset:0;z-index:-2;
  display:flex;align-items:center;justify-content:center;
@@ -36,63 +31,37 @@ button,select{cursor:pointer}
  background:radial-gradient(ellipse at center,#30200c 0%,#100c07 48%,#050505 100%);
 }
 .bull-bg svg{
- width:min(115vw,850px);
- height:90vh;
- opacity:.29;
- filter:drop-shadow(0 0 22px #d99d31);
+ width:min(115vw,850px);height:90vh;
+ opacity:.29;filter:drop-shadow(0 0 22px #d99d31);
 }
 .bull-bg:after{
  content:"";position:absolute;inset:0;
  background:linear-gradient(180deg,#0008,transparent 35%,#000b);
 }
-
-.app{
- max-width:950px;margin:auto;
- padding:14px 14px 105px;
-}
+.app{max-width:950px;margin:auto;padding:14px 14px 105px}
 header{
  display:flex;align-items:center;justify-content:space-between;
- gap:10px;padding:10px 0 17px;
- border-bottom:1px solid var(--border)
+ gap:10px;padding:10px 0 17px;border-bottom:1px solid var(--border)
 }
 .brand{display:flex;align-items:center;gap:10px}
 .brand-icon{font-size:32px;color:var(--gold)}
-h1{
- font-size:clamp(14px,4vw,22px);
- letter-spacing:1.4px;color:var(--light);margin:0
-}
+h1{font-size:clamp(14px,4vw,22px);letter-spacing:1.4px;color:var(--light);margin:0}
 .tagline{font-size:9px;letter-spacing:2px;color:#bfb6a4;margin-top:5px}
 .connection{text-align:right;font-size:10px;color:var(--muted);line-height:1.8}
-.dot{
- display:inline-block;width:8px;height:8px;border-radius:50%;
- background:var(--red);margin-right:5px
-}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-right:5px}
 .dot.good{background:var(--green)}
 
 .screen{display:none;animation:appear .2s ease}
 .screen.active{display:block}
-@keyframes appear{
- from{opacity:0;transform:translateY(5px)}
- to{opacity:1;transform:translateY(0)}
-}
-.screen-title{
- color:var(--gold);font-size:11px;letter-spacing:2px;
- margin:24px 0 15px
-}
+@keyframes appear{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.screen-title{color:var(--gold);font-size:11px;letter-spacing:2px;margin:24px 0 15px}
 .panel{
  background:var(--panel);border:1px solid var(--border);
  border-radius:15px;padding:16px;margin-bottom:12px;
- backdrop-filter:blur(10px);
- box-shadow:0 8px 30px #0008
+ backdrop-filter:blur(10px);box-shadow:0 8px 30px #0008
 }
-.panel h2{
- font-size:12px;letter-spacing:1.3px;
- color:var(--light);margin:0 0 13px
-}
-label{
- display:block;font-size:11px;color:#c9c2b6;
- margin:13px 0 7px
-}
+.panel h2{font-size:12px;letter-spacing:1.3px;color:var(--light);margin:0 0 13px}
+label{display:block;font-size:11px;color:#c9c2b6;margin:13px 0 7px}
 input,select{
  width:100%;padding:12px 10px;color:white;
  background:#10100f;border:1px solid #50432b;
@@ -101,114 +70,64 @@ input,select{
 input:focus,select:focus{border-color:var(--gold)}
 option{background:#111;color:white}
 .small{font-size:10px;line-height:1.6;color:var(--muted)}
-.message{
- font-size:11px;color:var(--light);
- line-height:1.6;margin-top:10px;overflow-wrap:anywhere
-}
+.message{font-size:11px;color:var(--light);line-height:1.6;margin-top:10px;overflow-wrap:anywhere}
 .action{
- width:100%;margin-top:10px;padding:13px;
- border-radius:9px;color:var(--light);
- background:#191308;border:1px solid var(--gold)
+ width:100%;margin-top:10px;padding:13px;border-radius:9px;
+ color:var(--light);background:#191308;border:1px solid var(--gold)
 }
 .action:disabled{opacity:.5;cursor:not-allowed}
-
-/* HOME */
+.notice{
+ margin-top:12px;padding:12px;background:#171107e8;
+ border:1px solid #4b3b20;border-radius:10px;
+ color:#d8c7a1;font-size:11px;line-height:1.6
+}
 .home-content{
  min-height:65vh;display:flex;flex-direction:column;
  justify-content:center;align-items:center;text-align:center
 }
-.home-title{
- color:var(--gold);font-size:11px;
- letter-spacing:3px;margin-bottom:24px
-}
+.home-title{color:var(--gold);font-size:11px;letter-spacing:3px;margin-bottom:24px}
 .power{
- width:clamp(205px,60vw,255px);aspect-ratio:1;
- border-radius:50%;border:5px double var(--gold);
- color:var(--light);
+ width:clamp(205px,60vw,255px);aspect-ratio:1;border-radius:50%;
+ border:5px double var(--gold);color:var(--light);
  background:radial-gradient(circle,#39270c,#100d08 65%,#050505);
- box-shadow:0 0 0 8px #bd842526,0 0 40px #d99d3159,
- inset 0 0 25px #d99d3127;
- display:flex;flex-direction:column;
- align-items:center;justify-content:center;gap:9px;
- transition:.2s
+ box-shadow:0 0 0 8px #bd842526,0 0 40px #d99d3159,inset 0 0 25px #d99d3127;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px
 }
 .power:active{transform:scale(.97)}
-.power.running{border-color:var(--green);color:var(--green)}
 .power-icon{font-size:42px}
 .power-label{font-size:29px;font-weight:800;letter-spacing:2px}
 .power-sub{font-size:10px;letter-spacing:1.5px}
-.home-status{
- margin-top:20px;color:var(--muted);
- font-size:11px;line-height:1.8
-}
+.home-status{margin-top:20px;color:var(--muted);font-size:11px;line-height:1.8}
 .home-status strong{color:var(--light)}
-.home-message{
- max-width:330px;margin-top:15px;
- color:var(--light);font-size:11px;line-height:1.6
-}
+.home-message{max-width:330px;margin-top:15px;color:var(--light);font-size:11px;line-height:1.6}
 
-/* SYMBOLS */
 .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
-.mode{
- color:white;background:#11100e;
- border:1px solid #51432b;border-radius:9px;padding:12px 4px
-}
+.mode{color:white;background:#11100e;border:1px solid #51432b;border-radius:9px;padding:12px 4px}
 .mode strong{display:block;font-size:11px}
 .mode small{display:block;color:var(--muted);font-size:9px;margin-top:5px}
 .mode.active{background:#38280e;border-color:var(--gold)}
 .strategy-list{display:grid;gap:8px}
 .strategy-option{
- display:flex;align-items:center;gap:9px;
- background:#11100e;border:1px solid #393126;
- border-radius:9px;padding:11px;font-size:11px
+ display:flex;align-items:center;gap:9px;background:#11100e;
+ border:1px solid #393126;border-radius:9px;padding:11px;font-size:11px
 }
 .strategy-option input{width:auto;accent-color:var(--gold)}
-.trade-limit{
- border:1px solid var(--gold);border-radius:12px;
- background:#1c160b;padding:13px;margin-top:13px
-}
+.trade-limit{border:1px solid var(--gold);border-radius:12px;background:#1c160b;padding:13px;margin-top:13px}
 .trade-limit strong{color:var(--light);font-size:12px}
-.limit-presets{
- display:grid;grid-template-columns:repeat(3,1fr);
- gap:7px;margin-top:10px
-}
-.preset{
- background:#11100e;border:1px solid #51432b;
- border-radius:8px;padding:9px;color:#eee;font-size:11px
-}
+.limit-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.preset{background:#11100e;border:1px solid #51432b;border-radius:8px;padding:9px;color:#eee;font-size:11px}
 .preset.active{border-color:var(--gold);color:var(--light)}
-.notice{
- margin-top:12px;padding:12px;
- background:#171107e8;border:1px solid #4b3b20;
- border-radius:10px;color:#d8c7a1;
- font-size:11px;line-height:1.6
-}
-
-/* BROKER / SETTINGS */
 .checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.check{
- background:#11100e;border:1px solid #393126;
- padding:11px;border-radius:9px;
- font-size:10px;color:#ccc
-}
+.check{background:#11100e;border:1px solid #393126;padding:11px;border-radius:9px;font-size:10px;color:#ccc}
 .check span{display:block;color:var(--red);margin-top:6px}
-.footer{
- text-align:center;margin-top:25px;
- font-size:9px;letter-spacing:3px;color:#b9a15d
-}
-
-/* NAVIGATION */
+.footer{text-align:center;margin-top:25px;font-size:9px;letter-spacing:3px;color:#b9a15d}
 .bottom-nav{
  position:fixed;z-index:5;bottom:0;left:0;right:0;
  display:flex;justify-content:space-around;gap:4px;
  padding:10px 5px calc(10px + env(safe-area-inset-bottom));
- background:#080706f5;border-top:1px solid var(--border);
- backdrop-filter:blur(12px)
+ background:#080706f5;border-top:1px solid var(--border);backdrop-filter:blur(12px)
 }
-.bottom-nav button{
- flex:1;background:none;border:0;
- color:#aaa49a;font-size:10px;padding:5px 2px
-}
+.bottom-nav button{flex:1;background:none;border:0;color:#aaa49a;font-size:10px;padding:5px 2px}
 .bottom-nav button b{display:block;font-size:19px;margin-bottom:4px}
 .bottom-nav button.active{color:var(--light)}
 @media(min-width:700px){
@@ -220,7 +139,6 @@ option{background:#111;color:white}
 
 <body>
 
-<!-- METALLIC ROBOTIC BULL -->
 <div class="bull-bg" aria-hidden="true">
 <svg viewBox="0 0 600 650" xmlns="http://www.w3.org/2000/svg">
 <defs>
@@ -235,45 +153,23 @@ option{background:#111;color:white}
   <stop offset="1" stop-color="#241809"/>
  </linearGradient>
 </defs>
-
 <g stroke="url(#metal)" stroke-linejoin="round" stroke-linecap="round" fill="none">
- <!-- HORNS -->
  <path stroke-width="25" d="M205 170L140 120L75 30L90 115L155 215"/>
  <path stroke-width="25" d="M395 170L460 120L525 30L510 115L445 215"/>
  <path stroke-width="9" d="M140 120L105 90L90 30M460 120L495 90L510 30"/>
-
- <!-- OUTER HEAD ARMOUR -->
  <path stroke-width="15" d="M175 150L220 120L300 135L380 120L425 150"/>
  <path stroke-width="15" d="M175 150L135 240L160 350L195 435L250 495L300 520L350 495L405 435L440 350L465 240L425 150"/>
- 
- <!-- FOREHEAD MECHANICAL PLATES -->
  <path stroke-width="10" d="M220 155L260 185L300 165L340 185L380 155"/>
- <path stroke-width="8" d="M250 190L300 215L350 190"/>
- <path stroke-width="8" d="M300 135L300 215"/>
-
- <!-- SIDE ARMOUR -->
- <path stroke-width="12" d="M165 215L210 235L190 300L160 330"/>
- <path stroke-width="12" d="M435 215L390 235L410 300L440 330"/>
- <path stroke-width="7" d="M170 350L220 385L200 430"/>
- <path stroke-width="7" d="M430 350L380 385L400 430"/>
-
- <!-- EYES -->
- <path stroke-width="12" d="M190 260L240 280L270 260"/>
- <path stroke-width="12" d="M410 260L360 280L330 260"/>
-
- <!-- NOSE / MUZZLE -->
+ <path stroke-width="8" d="M250 190L300 215L350 190M300 135L300 215"/>
+ <path stroke-width="12" d="M165 215L210 235L190 300L160 330M435 215L390 235L410 300L440 330"/>
+ <path stroke-width="7" d="M170 350L220 385L200 430M430 350L380 385L400 430"/>
+ <path stroke-width="12" d="M190 260L240 280L270 260M410 260L360 280L330 260"/>
  <path stroke-width="12" d="M225 340L260 320L300 335L340 320L375 340"/>
  <path stroke-width="12" d="M220 365L255 395L300 405L345 395L380 365"/>
- <path stroke-width="8" d="M250 430L300 450L350 430"/>
- <path stroke-width="7" d="M300 335L300 405"/>
-
- <!-- MECHANICAL DETAILS -->
- <path stroke-width="6" d="M205 175L185 200L210 210"/>
- <path stroke-width="6" d="M395 175L415 200L390 210"/>
- <path stroke-width="6" d="M230 470L260 490L270 465"/>
- <path stroke-width="6" d="M370 470L340 490L330 465"/>
+ <path stroke-width="8" d="M250 430L300 450L350 430M300 335L300 405"/>
+ <path stroke-width="6" d="M205 175L185 200L210 210M395 175L415 200L390 210"/>
+ <path stroke-width="6" d="M230 470L260 490L270 465M370 470L340 490L330 465"/>
 </g>
-
 <g fill="url(#darkmetal)" stroke="#e9b84e" stroke-width="4">
  <path d="M185 255L255 275L235 300L185 285Z"/>
  <path d="M415 255L345 275L365 300L415 285Z"/>
@@ -281,15 +177,13 @@ option{background:#111;color:white}
  <path d="M240 390L300 410L360 390L340 430L300 445L260 430Z"/>
 </g>
 <g fill="#ffe5a0">
- <circle cx="230" cy="275" r="7"/>
- <circle cx="370" cy="275" r="7"/>
+ <circle cx="230" cy="275" r="7"/><circle cx="370" cy="275" r="7"/>
  <circle cx="300" cy="350" r="5"/>
 </g>
 </svg>
 </div>
 
 <main class="app">
-
 <header>
  <div class="brand">
   <div class="brand-icon">♉</div>
@@ -300,18 +194,16 @@ option{background:#111;color:white}
  </div>
  <div class="connection">
   <span class="dot" id="apiDot"></span>
-  <span id="connectionLabel">NOT CONNECTED</span><br>
-  API STATUS
+  <span id="connectionLabel">NOT CONNECTED</span><br>API STATUS
  </div>
 </header>
 
-<!-- HOME SCREEN -->
 <section class="screen active" id="homeScreen">
  <div class="home-content">
   <div class="home-title">LUCIDIOUS TRADING ENGINE</div>
   <button class="power" id="powerButton" type="button">
-   <span class="power-icon" id="powerIcon">⏻</span>
-   <span class="power-label" id="powerLabel">START</span>
+   <span class="power-icon">⏻</span>
+   <span class="power-label">START</span>
    <span class="power-sub">TRADING ENGINE</span>
   </button>
   <div class="home-status">
@@ -319,19 +211,17 @@ option{background:#111;color:white}
    API: <strong id="homeApiStatus">NOT CONNECTED</strong>
   </div>
   <div class="home-message" id="engineMessage">
-   Connect your API and verified trading bridge before starting.
+   Connect your API and verified MT5 trading bridge before starting.
   </div>
  </div>
  <div class="notice">
-  <strong>Important:</strong> Closing this dashboard will not stop a properly
-  deployed server-side trading engine. The MT5 bridge must be running separately.
+  Closing this dashboard will not stop a properly deployed server-side engine.
+  The MT5 terminal and bridge must be running separately.
  </div>
 </section>
 
-<!-- SYMBOLS SCREEN -->
 <section class="screen" id="symbolsScreen">
  <div class="screen-title">◈ SYMBOLS & TRADING CONFIGURATION</div>
-
  <div class="two-columns">
   <div class="panel">
    <h2>MARKET SELECTION</h2>
@@ -346,27 +236,17 @@ option{background:#111;color:white}
     <option value="NAS100">NAS100 - Nasdaq</option>
    </select>
    <button class="action" id="refreshMarkets">REFRESH BROKER SYMBOLS</button>
-   <div class="message" id="marketMessage">
-    Connect a broker terminal to discover its available instruments.
-   </div>
+   <div class="message" id="marketMessage">Connect a broker terminal to discover instruments.</div>
   </div>
 
   <div class="panel">
    <h2>TRADING MODE</h2>
    <div class="modes">
-    <button class="mode active" data-mode="scalp">
-     <strong>SCALP</strong><small>M1 / M5 / M15</small>
-    </button>
-    <button class="mode" data-mode="day">
-     <strong>DAY</strong><small>M15 / M30 / H1</small>
-    </button>
-    <button class="mode" data-mode="swing">
-     <strong>SWING</strong><small>H4 / D1 / W1</small>
-    </button>
+    <button class="mode active" data-mode="scalp"><strong>SCALP</strong><small>M1 / M5 / M15</small></button>
+    <button class="mode" data-mode="day"><strong>DAY</strong><small>M15 / M30 / H1</small></button>
+    <button class="mode" data-mode="swing"><strong>SWING</strong><small>H4 / D1 / W1</small></button>
    </div>
-   <div class="small" id="modeDescription" style="margin-top:12px">
-    Short-term trading setups.
-   </div>
+   <div class="small" id="modeDescription" style="margin-top:12px">Short-term trading setups.</div>
    <label for="timeframe">Entry timeframe</label>
    <select id="timeframe"></select>
   </div>
@@ -374,43 +254,20 @@ option{background:#111;color:white}
   <div class="panel">
    <h2>STRATEGY SELECTION</h2>
    <div class="strategy-list">
-    <label class="strategy-option">
-     <input type="radio" name="strategy" value="auto" checked>
-     Automatic strategy selection
-    </label>
-    <label class="strategy-option">
-     <input type="radio" name="strategy" value="ema">
-     EMA Trend Following
-    </label>
-    <label class="strategy-option">
-     <input type="radio" name="strategy" value="smc_ict">
-     SMC / ICT
-    </label>
-    <label class="strategy-option">
-     <input type="radio" name="strategy" value="pullback">
-     Trend Pullback
-    </label>
-    <label class="strategy-option">
-     <input type="radio" name="strategy" value="donchian">
-     Donchian Breakout
-    </label>
-    <label class="strategy-option">
-     <input type="radio" name="strategy" value="rsi">
-     RSI Mean Reversion
-    </label>
-    <label class="strategy-option">
-     <input type="radio" name="strategy" value="atr">
-     ATR Volatility Breakout
-    </label>
+    <label class="strategy-option"><input type="radio" name="strategy" value="auto" checked>Automatic strategy selection</label>
+    <label class="strategy-option"><input type="radio" name="strategy" value="ema">EMA Trend Following</label>
+    <label class="strategy-option"><input type="radio" name="strategy" value="smc_ict">SMC / ICT</label>
+    <label class="strategy-option"><input type="radio" name="strategy" value="pullback">Trend Pullback</label>
+    <label class="strategy-option"><input type="radio" name="strategy" value="donchian">Donchian Breakout</label>
+    <label class="strategy-option"><input type="radio" name="strategy" value="rsi">RSI Mean Reversion</label>
+    <label class="strategy-option"><input type="radio" name="strategy" value="atr">ATR Volatility Breakout</label>
    </div>
   </div>
 
   <div class="panel">
    <h2>POSITION & RISK</h2>
    <label for="lot">Lot size</label>
-   <input id="lot" type="number" min="0.01" step="0.01"
-          value="0.01" inputmode="decimal" placeholder="Example: 0.01">
-
+   <input id="lot" type="number" min="0.01" step="0.01" value="0.01" inputmode="decimal">
    <label for="risk">Risk per trade</label>
    <select id="risk">
     <option value="0.25">0.25%</option>
@@ -418,13 +275,11 @@ option{background:#111;color:white}
     <option value="1">1%</option>
     <option value="2">2%</option>
    </select>
-
    <div class="trade-limit">
     <strong>MAXIMUM OPEN TRADES</strong>
     <div class="small">Maximum simultaneous positions.</div>
     <label for="maxTrades">Trade limit</label>
-    <input id="maxTrades" type="number" min="1" max="100"
-           step="1" value="5" inputmode="numeric">
+    <input id="maxTrades" type="number" min="1" max="100" value="5" inputmode="numeric">
     <div class="limit-presets">
      <button class="preset" data-limit="1">1</button>
      <button class="preset active" data-limit="5">5</button>
@@ -437,73 +292,68 @@ option{background:#111;color:white}
    </div>
   </div>
  </div>
-
  <button class="action" id="saveSymbols">SAVE TRADING SETTINGS</button>
  <div class="message" id="symbolsMessage"></div>
- <div class="notice">
-  Your lot size must comply with your broker's minimum, maximum and volume step.
-  A setting of 100 trades is only a ceiling, not a recommendation.
- </div>
+ <div class="notice">A 100-trade limit is only a ceiling, not a recommendation. Actual risk controls must be enforced by the trading server.</div>
 </section>
 
-<!-- BROKER SCREEN -->
+<!-- MT5 ONLY BROKER SCREEN -->
 <section class="screen" id="brokerScreen">
- <div class="screen-title">◈ BROKER CONNECTION</div>
+ <div class="screen-title">◈ METATRADER 5 CONNECTION</div>
 
  <div class="panel">
-  <h2>BROKER DETAILS</h2>
-  <label for="platform">Trading platform</label>
-  <select id="platform">
-   <option value="MT5">MetaTrader 5</option>
-   <option value="MT4">MetaTrader 4</option>
-  </select>
+  <h2>MT5 ACCOUNT DETAILS</h2>
 
   <label for="brokerName">Broker name</label>
-  <input id="brokerName" type="text" placeholder="Enter your broker">
+  <input id="brokerName" type="text" placeholder="Example: Exness, IC Markets">
 
-  <label for="accountLogin">Trading account login</label>
-  <input id="accountLogin" type="text" inputmode="numeric"
-         placeholder="Account number">
+  <label for="accountLogin">MT5 account login</label>
+  <input id="accountLogin" type="text" inputmode="numeric" autocomplete="off" placeholder="Enter MT5 account number">
 
-  <label for="brokerServer">Broker server</label>
-  <input id="brokerServer" type="text" placeholder="Broker server name">
+  <label for="brokerServer">MT5 server</label>
+  <input id="brokerServer" type="text" autocomplete="off" placeholder="Example: Broker-Real">
+
+  <label for="mt5Password">MT5 trading password</label>
+  <input id="mt5Password" type="password" autocomplete="new-password"
+         placeholder="Enter password only when secure backend is ready">
+
+  <div class="small">
+   Your password is kept only temporarily in this page's memory.
+   It is NOT saved when you press Save Broker Details or refresh the page.
+  </div>
 
   <button class="action" id="saveBroker">SAVE BROKER DETAILS</button>
+  <button class="action" id="connectMT5">CONNECT TO MT5</button>
   <div class="message" id="brokerMessage"></div>
  </div>
 
  <div class="notice">
-  <strong>Security:</strong> This dashboard does not collect or store your
-  trading password. Broker credentials must be handled securely by the
-  authenticated trading bridge on your server.
+  <strong>Security warning:</strong> Do not enter your real trading password yet.
+  The MT5 authentication endpoint and secure credential handling have not been
+  implemented on the API. This screen does not transmit your password.
  </div>
 
  <div class="panel">
-  <h2>CONNECTION STATUS</h2>
+  <h2>MT5 CONNECTION STATUS</h2>
   <div class="checks">
    <div class="check">BROKER<span id="brokerStatus">Not connected</span></div>
-   <div class="check">MT4 / MT5<span id="bridgeStatus">Not connected</span></div>
+   <div class="check">MT5 TERMINAL<span id="bridgeStatus">Not connected</span></div>
    <div class="check">LIVE PRICES<span id="priceStatus">Not connected</span></div>
    <div class="check">ACCOUNT DATA<span id="accountStatus">Not available</span></div>
   </div>
  </div>
 </section>
 
-<!-- SETTINGS SCREEN -->
 <section class="screen" id="settingsScreen">
  <div class="screen-title">◈ API & SYSTEM SETTINGS</div>
-
  <div class="panel">
   <h2>API CONFIGURATION</h2>
   <label for="apiUrl">API base URL</label>
-  <input id="apiUrl" type="url"
-         placeholder="https://your-api.onrender.com"
-         autocomplete="url">
+  <input id="apiUrl" type="url" placeholder="https://your-api.onrender.com" autocomplete="url">
   <button class="action" id="connectButton">SAVE URL & TEST API</button>
   <button class="action" id="clearButton">CLEAR SAVED URL</button>
   <div class="message" id="apiMessage"></div>
  </div>
-
  <div class="panel">
   <h2>SYSTEM STATUS</h2>
   <div class="checks">
@@ -513,30 +363,20 @@ option{background:#111;color:white}
    <div class="check">ORDER SAFEGUARDS<span id="safeStatus">Not verified</span></div>
   </div>
  </div>
-
  <div class="notice">
-  <strong>Live trading is disabled until the server has a working authenticated
-  MT4/MT5 execution bridge and verified risk safeguards.</strong>
+  Live trading remains disabled until the server has a working authenticated
+  MT5 execution bridge and verified risk safeguards.
  </div>
 </section>
 
 <div class="footer">DISCIPLINE BUILDS FREEDOM</div>
 </main>
 
-<!-- FOUR SCREEN NAVIGATION -->
 <nav class="bottom-nav">
- <button class="active" data-screen="homeScreen">
-  <b>⌂</b>Home
- </button>
- <button data-screen="symbolsScreen">
-  <b>▥</b>Symbols
- </button>
- <button data-screen="brokerScreen">
-  <b>⇄</b>Broker
- </button>
- <button data-screen="settingsScreen">
-  <b>⚙</b>Settings
- </button>
+ <button class="active" data-screen="homeScreen"><b>⌂</b>Home</button>
+ <button data-screen="symbolsScreen"><b>▥</b>Symbols</button>
+ <button data-screen="brokerScreen"><b>⇄</b>Broker</button>
+ <button data-screen="settingsScreen"><b>⚙</b>Settings</button>
 </nav>
 
 <script>
@@ -554,32 +394,19 @@ let apiConnected = false;
 let publicConfig = null;
 
 const modes = {
- scalp:{
-  frames:["M1","M5","M15"],
-  description:"Scalping: short-term setups using M1, M5 or M15."
- },
- day:{
-  frames:["M15","M30","H1"],
-  description:"Day trading: intraday setups using M15, M30 or H1."
- },
- swing:{
-  frames:["H4","D1","W1"],
-  description:"Swing trading: longer-term setups using H4, D1 or W1."
- }
+ scalp:{frames:["M1","M5","M15"],description:"Scalping: short-term setups using M1, M5 or M15."},
+ day:{frames:["M15","M30","H1"],description:"Day trading: intraday setups using M15, M30 or H1."},
+ swing:{frames:["H4","D1","W1"],description:"Swing trading: longer-term setups using H4, D1 or W1."}
 };
 
 function showScreen(id){
- document.querySelectorAll(".screen").forEach(screen=>{
-  screen.classList.toggle("active",screen.id===id);
- });
- document.querySelectorAll(".bottom-nav button").forEach(button=>{
-  button.classList.toggle("active",button.dataset.screen===id);
- });
+ document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===id));
+ document.querySelectorAll(".bottom-nav button").forEach(b=>b.classList.toggle("active",b.dataset.screen===id));
  window.scrollTo({top:0,behavior:"smooth"});
 }
 
-document.querySelectorAll(".bottom-nav button").forEach(button=>{
- button.addEventListener("click",()=>showScreen(button.dataset.screen));
+document.querySelectorAll(".bottom-nav button").forEach(b=>{
+ b.addEventListener("click",()=>showScreen(b.dataset.screen));
 });
 
 function setStatus(id,message,good=false){
@@ -605,8 +432,8 @@ function validBase(value){
 function setMode(mode){
  if(!modes[mode])mode="scalp";
 
- document.querySelectorAll(".mode").forEach(button=>{
-  button.classList.toggle("active",button.dataset.mode===mode);
+ document.querySelectorAll(".mode").forEach(b=>{
+  b.classList.toggle("active",b.dataset.mode===mode);
  });
 
  const select=$("timeframe");
@@ -621,26 +448,21 @@ function setMode(mode){
  });
 
  if(modes[mode].frames.includes(previous))select.value=previous;
-
  $("modeDescription").textContent=modes[mode].description;
  localStorage.setItem(MODE_KEY,mode);
  saveSettings();
 }
 
 function saveSettings(){
- const selectedStrategy=document.querySelector(
-  'input[name="strategy"]:checked'
- );
-
+ const selected=document.querySelector('input[name="strategy"]:checked');
  const data={
   market:$("market").value,
   timeframe:$("timeframe").value,
   risk:$("risk").value,
   lot:$("lot").value,
   maxTrades:$("maxTrades").value,
-  strategy:selectedStrategy?selectedStrategy.value:"auto"
+  strategy:selected?selected.value:"auto"
  };
-
  localStorage.setItem(SETTINGS_KEY,JSON.stringify(data));
 }
 
@@ -648,12 +470,10 @@ function setTradeLimit(value){
  let n=Number(value);
  if(!Number.isFinite(n))n=1;
  n=Math.max(1,Math.min(100,Math.round(n)));
-
  $("maxTrades").value=n;
  $("limitMessage").textContent="Maximum: "+n+" simultaneous trades";
-
- document.querySelectorAll(".preset").forEach(button=>{
-  button.classList.toggle("active",Number(button.dataset.limit)===n);
+ document.querySelectorAll(".preset").forEach(b=>{
+  b.classList.toggle("active",Number(b.dataset.limit)===n);
  });
  saveSettings();
 }
@@ -661,16 +481,12 @@ function setTradeLimit(value){
 function loadSettings(){
  try{
   const saved=JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}");
-
   if(saved.market)$("market").value=saved.market;
   if(saved.risk)$("risk").value=saved.risk;
   if(saved.lot)$("lot").value=saved.lot;
   if(saved.maxTrades!==undefined)$("maxTrades").value=saved.maxTrades;
-
   if(saved.strategy){
-   const radio=document.querySelector(
-    'input[name="strategy"][value="'+saved.strategy+'"]'
-   );
+   const radio=document.querySelector('input[name="strategy"][value="'+saved.strategy+'"]');
    if(radio)radio.checked=true;
   }
  }catch(_){}
@@ -682,53 +498,35 @@ async function testAPI(){
   $("apiMessage").textContent="Testing API connection...";
   $("connectButton").disabled=true;
 
-  const response=await fetch(base+"/api/public-config",{
-   headers:{"Accept":"application/json"}
-  });
-
+  const response=await fetch(base+"/api/public-config",{headers:{"Accept":"application/json"}});
   if(!response.ok)throw new Error("API returned HTTP "+response.status);
 
   const config=await response.json();
-
   publicConfig=config;
   apiConnected=true;
-
   localStorage.setItem(URL_KEY,base);
   setConnection(true);
 
   const prices=config.live_prices_connected===true;
-  const bridge=config.mt5_connected===true||
-               config.trading_bridge_connected===true;
+  const bridge=config.mt5_connected===true||config.trading_bridge_connected===true;
 
   setStatus("priceStatus",prices?"Connected":"Not connected",prices);
   setStatus("settingsPriceStatus",prices?"Connected":"Not connected",prices);
-
   setStatus("bridgeStatus",bridge?"Connected":"Not connected",bridge);
   setStatus("settingsBridgeStatus",bridge?"Connected":"Not connected",bridge);
+  setStatus("safeStatus",config.trading_enabled===true?"Enabled - verify safeguards":"Not verified",false);
 
-  setStatus("safeStatus",
-   config.trading_enabled===true?"Enabled - verify safeguards":"Not verified",
-   false
-  );
-
-  $("apiMessage").textContent=
-   "API reachable. Trading enabled: "+
-   (config.trading_enabled===true?"yes":"no")+".";
-
-  $("engineMessage").textContent=
-   "API connected. Waiting for verified trading engine.";
-
+  $("apiMessage").textContent="API reachable. Trading enabled: "+(config.trading_enabled===true?"yes":"no")+".";
+  $("engineMessage").textContent="API connected. Waiting for verified MT5 trading engine.";
  }catch(error){
   apiConnected=false;
   publicConfig=null;
   setConnection(false);
-
   setStatus("priceStatus","Not connected");
   setStatus("settingsPriceStatus","Not connected");
   setStatus("bridgeStatus","Not connected");
   setStatus("settingsBridgeStatus","Not connected");
   setStatus("safeStatus","Not verified");
-
   $("apiMessage").textContent=error.message||"API connection failed.";
  }finally{
   $("connectButton").disabled=false;
@@ -740,107 +538,96 @@ function startEngine(){
   $("engineMessage").textContent="Connect your API first.";
   return;
  }
-
  if(publicConfig.trading_enabled!==true){
-  $("engineMessage").textContent=
-   "START BLOCKED: API reports trading disabled. No order was sent.";
+  $("engineMessage").textContent="START BLOCKED: API reports trading disabled. No order was sent.";
   return;
  }
-
- $("engineMessage").textContent=
-  "START BLOCKED: The authenticated MT5 execution and safety endpoints "+
-  "must be implemented before trading can begin.";
+ $("engineMessage").textContent="START BLOCKED: A verified MT5 execution and safety endpoint is still required.";
 }
 
-/* Load broker symbols from the backend when available */
 async function refreshMarkets(){
  if(!apiConnected){
   $("marketMessage").textContent="Connect the API first.";
   return;
  }
-
  $("marketMessage").textContent="Checking broker instruments...";
-
  try{
   const base=validBase($("apiUrl").value);
   const response=await fetch(base+"/api/broker/markets");
-
   if(!response.ok)throw new Error("Broker market endpoint unavailable.");
-
   const data=await response.json();
-  const items=Array.isArray(data)?data:
-   (data.markets||data.symbols||[]);
-
+  const items=Array.isArray(data)?data:(data.markets||data.symbols||[]);
   if(!items.length){
-   $("marketMessage").textContent=
-    "No broker instruments returned. The MT5 bridge must provide them.";
+   $("marketMessage").textContent="No broker instruments returned. The MT5 bridge must provide them.";
    return;
   }
-
   const select=$("market");
   const previous=select.value;
   select.replaceChildren();
-
   items.forEach(item=>{
-   const symbol=typeof item==="string"?item:
-    (item.symbol||item.name);
-
+   const symbol=typeof item==="string"?item:(item.symbol||item.name);
    if(!symbol)return;
-
    const option=document.createElement("option");
    option.value=symbol;
    option.textContent=symbol;
    select.appendChild(option);
   });
-
-  if([...select.options].some(o=>o.value===previous)){
-   select.value=previous;
-  }
-
-  $("marketMessage").textContent=
-   items.length+" broker instruments received.";
+  if([...select.options].some(o=>o.value===previous))select.value=previous;
+  $("marketMessage").textContent=items.length+" broker instruments received.";
  }catch(error){
-  $("marketMessage").textContent=
-   error.message+" Standard symbols remain available.";
+  $("marketMessage").textContent=error.message+" Standard symbols remain available.";
  }
 }
 
-/* Save broker identification only - no password */
+/* Save broker identification, never the password. */
 function saveBroker(){
  const data={
-  platform:$("platform").value,
+  platform:"MT5",
   name:$("brokerName").value.trim(),
   login:$("accountLogin").value.trim(),
   server:$("brokerServer").value.trim()
  };
 
+ if(!data.name||!data.login||!data.server){
+  $("brokerMessage").textContent="Enter your broker name, account login and server first.";
+  return;
+ }
+
  localStorage.setItem(BROKER_KEY,JSON.stringify(data));
- $("brokerMessage").textContent=
-  "Broker details saved on this device. Terminal connection is not yet verified.";
+ $("brokerMessage").textContent="MT5 broker details saved on this device. Password was NOT saved.";
 }
 
-function loadBroker(){
- try{
-  const data=JSON.parse(localStorage.getItem(BROKER_KEY)||"{}");
-  if(data.platform)$("platform").value=data.platform;
-  if(data.name)$("brokerName").value=data.name;
-  if(data.login)$("accountLogin").value=data.login;
-  if(data.server)$("brokerServer").value=data.server;
- }catch(_){}
+/* No credential transmission until secure backend authentication exists. */
+function connectMT5(){
+ const password=$("mt5Password").value;
+
+ if(!$("brokerName").value.trim()||
+    !$("accountLogin").value.trim()||
+    !$("brokerServer").value.trim()){
+  $("brokerMessage").textContent="Complete your broker name, login and server first.";
+  return;
+ }
+
+ if(!password){
+  $("brokerMessage").textContent="Enter the MT5 password when secure backend support is ready.";
+  return;
+ }
+
+ $("mt5Password").value="";
+ $("brokerMessage").textContent=
+  "Connection not attempted. The secure MT5 authentication endpoint is not implemented yet. Your password has been cleared and was not sent or saved.";
 }
 
 /* Events */
-document.querySelectorAll(".mode").forEach(button=>{
- button.addEventListener("click",()=>setMode(button.dataset.mode));
+document.querySelectorAll(".mode").forEach(b=>{
+ b.addEventListener("click",()=>setMode(b.dataset.mode));
 });
 
-document.querySelectorAll(".preset").forEach(button=>{
- button.addEventListener("click",()=>setTradeLimit(button.dataset.limit));
+document.querySelectorAll(".preset").forEach(b=>{
+ b.addEventListener("click",()=>setTradeLimit(b.dataset.limit));
 });
 
-$("maxTrades").addEventListener("change",()=>{
- setTradeLimit($("maxTrades").value);
-});
+$("maxTrades").addEventListener("change",()=>setTradeLimit($("maxTrades").value));
 
 ["market","timeframe","risk","lot"].forEach(id=>{
  $(id).addEventListener("change",saveSettings);
@@ -852,12 +639,10 @@ document.querySelectorAll('input[name="strategy"]').forEach(input=>{
 
 $("saveSymbols").addEventListener("click",()=>{
  const lot=Number($("lot").value);
-
  if(!Number.isFinite(lot)||lot<=0){
   $("symbolsMessage").textContent="Enter a valid lot size greater than zero.";
   return;
  }
-
  setTradeLimit($("maxTrades").value);
  saveSettings();
  $("symbolsMessage").textContent="Trading settings saved on this device.";
@@ -865,6 +650,7 @@ $("saveSymbols").addEventListener("click",()=>{
 
 $("refreshMarkets").addEventListener("click",refreshMarkets);
 $("saveBroker").addEventListener("click",saveBroker);
+$("connectMT5").addEventListener("click",connectMT5);
 $("connectButton").addEventListener("click",testAPI);
 $("powerButton").addEventListener("click",startEngine);
 
@@ -874,16 +660,23 @@ $("clearButton").addEventListener("click",()=>{
  apiConnected=false;
  publicConfig=null;
  setConnection(false);
-
  setStatus("priceStatus","Not connected");
  setStatus("settingsPriceStatus","Not connected");
  setStatus("bridgeStatus","Not connected");
  setStatus("settingsBridgeStatus","Not connected");
  setStatus("safeStatus","Not verified");
-
  $("apiMessage").textContent="Saved API URL cleared.";
  $("engineMessage").textContent="Connect your API first.";
 });
+
+function loadBroker(){
+ try{
+  const data=JSON.parse(localStorage.getItem(BROKER_KEY)||"{}");
+  if(data.name)$("brokerName").value=data.name;
+  if(data.login)$("accountLogin").value=data.login;
+  if(data.server)$("brokerServer").value=data.server;
+ }catch(_){}
+}
 
 /* Initial setup */
 loadSettings();
@@ -892,7 +685,6 @@ setMode(localStorage.getItem(MODE_KEY)||"scalp");
 setTradeLimit($("maxTrades").value||5);
 
 const savedUrl=localStorage.getItem(URL_KEY);
-
 if(savedUrl){
  $("apiUrl").value=savedUrl;
  testAPI();
