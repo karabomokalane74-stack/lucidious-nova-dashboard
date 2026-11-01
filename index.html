@@ -5,15 +5,18 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080706">
 <meta name="description" content="Lucidious Nova EA trading dashboard">
-<link rel="manifest" href="./manifest.json">
 <title>Lucidious Nova EA</title>
 
 <style>
 :root{
- --gold:#e9b84e;--light:#ffe5a0;--bg:#080706;
- --panel:rgba(12,11,9,.92);--muted:#aaa49a;
+ --gold:#e9b84e;
+ --light:#ffe5a0;
+ --bg:#080706;
+ --panel:rgba(12,11,9,.94);
+ --muted:#aaa49a;
  --border:rgba(233,184,78,.4);
- --green:#65dfa0;--red:#ff6262;
+ --green:#65dfa0;
+ --red:#ff6262;
 }
 *{box-sizing:border-box}
 body{
@@ -23,7 +26,6 @@ body{
 }
 button,input,select{font:inherit}
 button,select{cursor:pointer}
-
 .bull-bg{
  position:fixed;inset:0;z-index:-2;
  display:flex;align-items:center;justify-content:center;
@@ -50,7 +52,6 @@ h1{font-size:clamp(14px,4vw,22px);letter-spacing:1.4px;color:var(--light);margin
 .connection{text-align:right;font-size:10px;color:var(--muted);line-height:1.8}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-right:5px}
 .dot.good{background:var(--green)}
-
 .screen{display:none;animation:appear .2s ease}
 .screen.active{display:block}
 @keyframes appear{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
@@ -100,7 +101,6 @@ option{background:#111;color:white}
 .home-status{margin-top:20px;color:var(--muted);font-size:11px;line-height:1.8}
 .home-status strong{color:var(--light)}
 .home-message{max-width:330px;margin-top:15px;color:var(--light);font-size:11px;line-height:1.6}
-
 .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .mode{color:white;background:#11100e;border:1px solid #51432b;border-radius:9px;padding:12px 4px}
 .mode strong{display:block;font-size:11px}
@@ -167,8 +167,6 @@ option{background:#111;color:white}
  <path stroke-width="12" d="M225 340L260 320L300 335L340 320L375 340"/>
  <path stroke-width="12" d="M220 365L255 395L300 405L345 395L380 365"/>
  <path stroke-width="8" d="M250 430L300 450L350 430M300 335L300 405"/>
- <path stroke-width="6" d="M205 175L185 200L210 210M395 175L415 200L390 210"/>
- <path stroke-width="6" d="M230 470L260 490L270 465M370 470L340 490L330 465"/>
 </g>
 <g fill="url(#darkmetal)" stroke="#e9b84e" stroke-width="4">
  <path d="M185 255L255 275L235 300L185 285Z"/>
@@ -184,6 +182,7 @@ option{background:#111;color:white}
 </div>
 
 <main class="app">
+
 <header>
  <div class="brand">
   <div class="brand-icon">♉</div>
@@ -211,32 +210,36 @@ option{background:#111;color:white}
    API: <strong id="homeApiStatus">NOT CONNECTED</strong>
   </div>
   <div class="home-message" id="engineMessage">
-   Connect your API and verified MT5 trading bridge before starting.
+   Connect your API. Live trading is not yet available.
   </div>
  </div>
  <div class="notice">
-  Closing this dashboard will not stop a properly deployed server-side engine.
-  The MT5 terminal and bridge must be running separately.
+  This dashboard does not execute trades. A separate authenticated MT5 bridge,
+  terminal connection and server-side risk controls are still required.
  </div>
 </section>
 
 <section class="screen" id="symbolsScreen">
  <div class="screen-title">◈ SYMBOLS & TRADING CONFIGURATION</div>
  <div class="two-columns">
+
   <div class="panel">
    <h2>MARKET SELECTION</h2>
+   <label for="category">Market category</label>
+   <select id="category">
+    <option value="forex">Forex</option>
+    <option value="metals">Metals</option>
+    <option value="crypto">Crypto</option>
+    <option value="indices">Indices</option>
+    <option value="energies">Energies</option>
+   </select>
    <label for="market">Instrument</label>
    <select id="market">
     <option value="EURUSD">EURUSD</option>
-    <option value="GBPUSD">GBPUSD</option>
-    <option value="USDJPY">USDJPY</option>
-    <option value="XAUUSD">XAUUSD - Gold</option>
-    <option value="XAGUSD">XAGUSD - Silver</option>
-    <option value="BTCUSD">BTCUSD - Bitcoin</option>
-    <option value="NAS100">NAS100 - Nasdaq</option>
    </select>
-   <button class="action" id="refreshMarkets">REFRESH BROKER SYMBOLS</button>
-   <div class="message" id="marketMessage">Connect a broker terminal to discover instruments.</div>
+   <button class="action" id="refreshMarkets">REFRESH API SYMBOLS</button>
+   <div class="message" id="marketMessage">Standard catalogue not yet loaded.</div>
+   <div class="small">These are supported symbols, not live broker prices.</div>
   </div>
 
   <div class="panel">
@@ -279,58 +282,54 @@ option{background:#111;color:white}
     <strong>MAXIMUM OPEN TRADES</strong>
     <div class="small">Maximum simultaneous positions.</div>
     <label for="maxTrades">Trade limit</label>
-    <input id="maxTrades" type="number" min="1" max="100" value="5" inputmode="numeric">
+    <input id="maxTrades" type="number" min="1" max="5" value="5" inputmode="numeric">
     <div class="limit-presets">
      <button class="preset" data-limit="1">1</button>
      <button class="preset active" data-limit="5">5</button>
-     <button class="preset" data-limit="10">10</button>
-     <button class="preset" data-limit="20">20</button>
-     <button class="preset" data-limit="50">50</button>
-     <button class="preset" data-limit="100">100</button>
     </div>
     <div class="small" id="limitMessage">Maximum: 5 trades</div>
    </div>
   </div>
  </div>
+
  <button class="action" id="saveSymbols">SAVE TRADING SETTINGS</button>
  <div class="message" id="symbolsMessage"></div>
- <div class="notice">A 100-trade limit is only a ceiling, not a recommendation. Actual risk controls must be enforced by the trading server.</div>
+ <div class="notice">
+  Settings are saved on this device only. They are not yet enforced by a live trading server.
+  A low account balance does not make high trade limits safe.
+ </div>
 </section>
 
-<!-- MT5 ONLY BROKER SCREEN -->
 <section class="screen" id="brokerScreen">
  <div class="screen-title">◈ METATRADER 5 CONNECTION</div>
-
  <div class="panel">
   <h2>MT5 ACCOUNT DETAILS</h2>
-
   <label for="brokerName">Broker name</label>
   <input id="brokerName" type="text" placeholder="Example: Exness, IC Markets">
 
   <label for="accountLogin">MT5 account login</label>
-  <input id="accountLogin" type="text" inputmode="numeric" autocomplete="off" placeholder="Enter MT5 account number">
+  <input id="accountLogin" type="text" inputmode="numeric" autocomplete="off" placeholder="MT5 account number">
 
   <label for="brokerServer">MT5 server</label>
   <input id="brokerServer" type="text" autocomplete="off" placeholder="Example: Broker-Real">
 
   <label for="mt5Password">MT5 trading password</label>
   <input id="mt5Password" type="password" autocomplete="new-password"
-         placeholder="Enter password only when secure backend is ready">
+   placeholder="Do not enter your real password">
 
   <div class="small">
-   Your password is kept only temporarily in this page's memory.
-   It is NOT saved when you press Save Broker Details or refresh the page.
+   Broker name, login and server can be saved locally.
+   The password is never saved or transmitted.
   </div>
 
   <button class="action" id="saveBroker">SAVE BROKER DETAILS</button>
-  <button class="action" id="connectMT5">CONNECT TO MT5</button>
+  <button class="action" id="connectMT5">CHECK MT5 CONNECTION</button>
   <div class="message" id="brokerMessage"></div>
  </div>
 
  <div class="notice">
-  <strong>Security warning:</strong> Do not enter your real trading password yet.
-  The MT5 authentication endpoint and secure credential handling have not been
-  implemented on the API. This screen does not transmit your password.
+  <strong>Security warning:</strong> MT5 authentication is not implemented.
+  Do not enter your real trading password. This screen cannot connect to your broker.
  </div>
 
  <div class="panel">
@@ -349,11 +348,12 @@ option{background:#111;color:white}
  <div class="panel">
   <h2>API CONFIGURATION</h2>
   <label for="apiUrl">API base URL</label>
-  <input id="apiUrl" type="url" placeholder="https://your-api.onrender.com" autocomplete="url">
+  <input id="apiUrl" type="url" placeholder="https://lucidious-nova-dashboard.onrender.com" autocomplete="url">
   <button class="action" id="connectButton">SAVE URL & TEST API</button>
   <button class="action" id="clearButton">CLEAR SAVED URL</button>
   <div class="message" id="apiMessage"></div>
  </div>
+
  <div class="panel">
   <h2>SYSTEM STATUS</h2>
   <div class="checks">
@@ -363,9 +363,10 @@ option{background:#111;color:white}
    <div class="check">ORDER SAFEGUARDS<span id="safeStatus">Not verified</span></div>
   </div>
  </div>
+
  <div class="notice">
-  Live trading remains disabled until the server has a working authenticated
-  MT5 execution bridge and verified risk safeguards.
+  Live trading remains disabled until a secure MT5 execution bridge and verified
+  server-side risk safeguards are implemented and tested.
  </div>
 </section>
 
@@ -385,6 +386,7 @@ option{background:#111;color:white}
 
 const $ = id => document.getElementById(id);
 
+const API_DEFAULT = "https://lucidious-nova-dashboard.onrender.com";
 const URL_KEY = "lucidiousNovaApiUrl";
 const MODE_KEY = "lucidiousNovaMode";
 const SETTINGS_KEY = "lucidiousNovaSettings";
@@ -392,6 +394,15 @@ const BROKER_KEY = "lucidiousNovaBroker";
 
 let apiConnected = false;
 let publicConfig = null;
+let marketCatalogue = null;
+
+const fallbackMarkets = {
+ forex:["EURUSD","GBPUSD","USDJPY","AUDUSD","USDCAD","USDCHF","NZDUSD","EURGBP","EURJPY","GBPJPY","USDZAR"],
+ metals:["XAUUSD","XAGUSD"],
+ crypto:["BTCUSD","ETHUSD"],
+ indices:["NAS100","US30","GER40","UK100","SPX500","AUS200"],
+ energies:["USOIL","UKOIL","NATGAS"]
+};
 
 const modes = {
  scalp:{frames:["M1","M5","M15"],description:"Scalping: short-term setups using M1, M5 or M15."},
@@ -405,8 +416,8 @@ function showScreen(id){
  window.scrollTo({top:0,behavior:"smooth"});
 }
 
-document.querySelectorAll(".bottom-nav button").forEach(b=>{
- b.addEventListener("click",()=>showScreen(b.dataset.screen));
+document.querySelectorAll(".bottom-nav button").forEach(button=>{
+ button.addEventListener("click",()=>showScreen(button.dataset.screen));
 });
 
 function setStatus(id,message,good=false){
@@ -432,8 +443,8 @@ function validBase(value){
 function setMode(mode){
  if(!modes[mode])mode="scalp";
 
- document.querySelectorAll(".mode").forEach(b=>{
-  b.classList.toggle("active",b.dataset.mode===mode);
+ document.querySelectorAll(".mode").forEach(button=>{
+  button.classList.toggle("active",button.dataset.mode===mode);
  });
 
  const select=$("timeframe");
@@ -456,6 +467,7 @@ function setMode(mode){
 function saveSettings(){
  const selected=document.querySelector('input[name="strategy"]:checked');
  const data={
+  category:$("category").value,
   market:$("market").value,
   timeframe:$("timeframe").value,
   risk:$("risk").value,
@@ -469,19 +481,45 @@ function saveSettings(){
 function setTradeLimit(value){
  let n=Number(value);
  if(!Number.isFinite(n))n=1;
- n=Math.max(1,Math.min(100,Math.round(n)));
+ n=Math.max(1,Math.min(5,Math.round(n)));
  $("maxTrades").value=n;
  $("limitMessage").textContent="Maximum: "+n+" simultaneous trades";
- document.querySelectorAll(".preset").forEach(b=>{
-  b.classList.toggle("active",Number(b.dataset.limit)===n);
+ document.querySelectorAll(".preset").forEach(button=>{
+  button.classList.toggle("active",Number(button.dataset.limit)===n);
  });
  saveSettings();
+}
+
+function populateMarkets(category,preferred){
+ const select=$("market");
+ const list=(marketCatalogue||fallbackMarkets)[category]||[];
+ select.replaceChildren();
+
+ list.forEach(symbol=>{
+  const option=document.createElement("option");
+  option.value=symbol;
+  option.textContent=symbol;
+  select.appendChild(option);
+ });
+
+ if(preferred&&list.includes(preferred)){
+  select.value=preferred;
+ }
+
+ if(!list.length){
+  const option=document.createElement("option");
+  option.textContent="No symbols available";
+  option.value="";
+  select.appendChild(option);
+ }
 }
 
 function loadSettings(){
  try{
   const saved=JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}");
-  if(saved.market)$("market").value=saved.market;
+  if(saved.category&&fallbackMarkets[saved.category]){
+   $("category").value=saved.category;
+  }
   if(saved.risk)$("risk").value=saved.risk;
   if(saved.lot)$("lot").value=saved.lot;
   if(saved.maxTrades!==undefined)$("maxTrades").value=saved.maxTrades;
@@ -489,7 +527,10 @@ function loadSettings(){
    const radio=document.querySelector('input[name="strategy"][value="'+saved.strategy+'"]');
    if(radio)radio.checked=true;
   }
- }catch(_){}
+  populateMarkets($("category").value,saved.market||"EURUSD");
+ }catch(_){
+  populateMarkets("forex","EURUSD");
+ }
 }
 
 async function testAPI(){
@@ -498,10 +539,20 @@ async function testAPI(){
   $("apiMessage").textContent="Testing API connection...";
   $("connectButton").disabled=true;
 
-  const response=await fetch(base+"/api/public-config",{headers:{"Accept":"application/json"}});
-  if(!response.ok)throw new Error("API returned HTTP "+response.status);
+  const response=await fetch(base+"/api/public-config",{
+   headers:{"Accept":"application/json"}
+  });
+
+  if(!response.ok){
+   throw new Error("API returned HTTP "+response.status);
+  }
 
   const config=await response.json();
+
+  if(!config||typeof config!=="object"){
+   throw new Error("API returned an invalid configuration.");
+  }
+
   publicConfig=config;
   apiConnected=true;
   localStorage.setItem(URL_KEY,base);
@@ -514,10 +565,14 @@ async function testAPI(){
   setStatus("settingsPriceStatus",prices?"Connected":"Not connected",prices);
   setStatus("bridgeStatus",bridge?"Connected":"Not connected",bridge);
   setStatus("settingsBridgeStatus",bridge?"Connected":"Not connected",bridge);
-  setStatus("safeStatus",config.trading_enabled===true?"Enabled - verify safeguards":"Not verified",false);
+  setStatus("safeStatus","Not verified",false);
 
-  $("apiMessage").textContent="API reachable. Trading enabled: "+(config.trading_enabled===true?"yes":"no")+".";
-  $("engineMessage").textContent="API connected. Waiting for verified MT5 trading engine.";
+  $("apiMessage").textContent=
+   "API reachable. Trading enabled: "+
+   (config.trading_enabled===true?"yes":"no")+".";
+  $("engineMessage").textContent=
+   "API connected. MT5 execution is not yet implemented.";
+
  }catch(error){
   apiConnected=false;
   publicConfig=null;
@@ -528,21 +583,10 @@ async function testAPI(){
   setStatus("settingsBridgeStatus","Not connected");
   setStatus("safeStatus","Not verified");
   $("apiMessage").textContent=error.message||"API connection failed.";
+  $("engineMessage").textContent="Connect your API first.";
  }finally{
   $("connectButton").disabled=false;
  }
-}
-
-function startEngine(){
- if(!apiConnected||!publicConfig){
-  $("engineMessage").textContent="Connect your API first.";
-  return;
- }
- if(publicConfig.trading_enabled!==true){
-  $("engineMessage").textContent="START BLOCKED: API reports trading disabled. No order was sent.";
-  return;
- }
- $("engineMessage").textContent="START BLOCKED: A verified MT5 execution and safety endpoint is still required.";
 }
 
 async function refreshMarkets(){
@@ -550,36 +594,80 @@ async function refreshMarkets(){
   $("marketMessage").textContent="Connect the API first.";
   return;
  }
- $("marketMessage").textContent="Checking broker instruments...";
+
+ $("marketMessage").textContent="Loading supported API symbols...";
+ $("refreshMarkets").disabled=true;
+
  try{
   const base=validBase($("apiUrl").value);
-  const response=await fetch(base+"/api/broker/markets");
-  if(!response.ok)throw new Error("Broker market endpoint unavailable.");
-  const data=await response.json();
-  const items=Array.isArray(data)?data:(data.markets||data.symbols||[]);
-  if(!items.length){
-   $("marketMessage").textContent="No broker instruments returned. The MT5 bridge must provide them.";
-   return;
-  }
-  const select=$("market");
-  const previous=select.value;
-  select.replaceChildren();
-  items.forEach(item=>{
-   const symbol=typeof item==="string"?item:(item.symbol||item.name);
-   if(!symbol)return;
-   const option=document.createElement("option");
-   option.value=symbol;
-   option.textContent=symbol;
-   select.appendChild(option);
+
+  const response=await fetch(base+"/api/markets",{
+   headers:{"Accept":"application/json"}
   });
-  if([...select.options].some(o=>o.value===previous))select.value=previous;
-  $("marketMessage").textContent=items.length+" broker instruments received.";
+
+  if(!response.ok){
+   throw new Error("Markets endpoint returned HTTP "+response.status);
+  }
+
+  const data=await response.json();
+  const source=data.markets||data;
+
+  if(!source||typeof source!=="object"||Array.isArray(source)){
+   throw new Error("Unexpected market catalogue format.");
+  }
+
+  const cleaned={};
+  Object.keys(fallbackMarkets).forEach(category=>{
+   const symbols=source[category];
+   cleaned[category]=Array.isArray(symbols)
+    ?symbols.filter(item=>typeof item==="string"&&item.trim())
+    :[];
+  });
+
+  const total=Object.values(cleaned).reduce((sum,list)=>sum+list.length,0);
+
+  if(total===0){
+   throw new Error("No supported symbols were returned.");
+  }
+
+  marketCatalogue=cleaned;
+
+  const previous=$("market").value;
+  const category=$("category").value;
+  populateMarkets(category,previous);
+
+  $("marketMessage").textContent=
+   total+" supported symbols loaded across "+
+   Object.values(cleaned).filter(list=>list.length).length+
+   " categories. Live broker data: no.";
+
+  saveSettings();
+
  }catch(error){
-  $("marketMessage").textContent=error.message+" Standard symbols remain available.";
+  $("marketMessage").textContent=
+   "Could not refresh symbols: "+error.message+
+   ". Existing standard symbols remain available.";
+ }finally{
+  $("refreshMarkets").disabled=false;
  }
 }
 
-/* Save broker identification, never the password. */
+function startEngine(){
+ if(!apiConnected||!publicConfig){
+  $("engineMessage").textContent="START BLOCKED: Connect the API first.";
+  return;
+ }
+
+ if(publicConfig.trading_enabled!==true){
+  $("engineMessage").textContent=
+   "START BLOCKED: Trading is disabled on the API. No order was sent.";
+  return;
+ }
+
+ $("engineMessage").textContent=
+  "START BLOCKED: A verified MT5 execution bridge and server-side safeguards are required.";
+}
+
 function saveBroker(){
  const data={
   platform:"MT5",
@@ -589,48 +677,50 @@ function saveBroker(){
  };
 
  if(!data.name||!data.login||!data.server){
-  $("brokerMessage").textContent="Enter your broker name, account login and server first.";
+  $("brokerMessage").textContent=
+   "Enter your broker name, account login and server first.";
   return;
  }
 
  localStorage.setItem(BROKER_KEY,JSON.stringify(data));
- $("brokerMessage").textContent="MT5 broker details saved on this device. Password was NOT saved.";
+ $("brokerMessage").textContent=
+  "Broker identification saved on this device. Password was not saved.";
 }
 
-/* No credential transmission until secure backend authentication exists. */
 function connectMT5(){
- const password=$("mt5Password").value;
-
- if(!$("brokerName").value.trim()||
-    !$("accountLogin").value.trim()||
-    !$("brokerServer").value.trim()){
-  $("brokerMessage").textContent="Complete your broker name, login and server first.";
-  return;
- }
-
- if(!password){
-  $("brokerMessage").textContent="Enter the MT5 password when secure backend support is ready.";
-  return;
- }
-
  $("mt5Password").value="";
  $("brokerMessage").textContent=
-  "Connection not attempted. The secure MT5 authentication endpoint is not implemented yet. Your password has been cleared and was not sent or saved.";
+  "MT5 connection is not available yet. The secure authentication endpoint has not been implemented. No password was sent or saved.";
+}
+
+function loadBroker(){
+ try{
+  const data=JSON.parse(localStorage.getItem(BROKER_KEY)||"{}");
+  if(data.name)$("brokerName").value=data.name;
+  if(data.login)$("accountLogin").value=data.login;
+  if(data.server)$("brokerServer").value=data.server;
+ }catch(_){}
 }
 
 /* Events */
-document.querySelectorAll(".mode").forEach(b=>{
- b.addEventListener("click",()=>setMode(b.dataset.mode));
+
+document.querySelectorAll(".mode").forEach(button=>{
+ button.addEventListener("click",()=>setMode(button.dataset.mode));
 });
 
-document.querySelectorAll(".preset").forEach(b=>{
- b.addEventListener("click",()=>setTradeLimit(b.dataset.limit));
+document.querySelectorAll(".preset").forEach(button=>{
+ button.addEventListener("click",()=>setTradeLimit(button.dataset.limit));
 });
 
 $("maxTrades").addEventListener("change",()=>setTradeLimit($("maxTrades").value));
 
-["market","timeframe","risk","lot"].forEach(id=>{
- $(id).addEventListener("change",saveSettings);
+["market","category","timeframe","risk","lot"].forEach(id=>{
+ $(id).addEventListener("change",()=>{
+  if(id==="category"){
+   populateMarkets($("category").value);
+  }
+  saveSettings();
+ });
 });
 
 document.querySelectorAll('input[name="strategy"]').forEach(input=>{
@@ -639,13 +729,23 @@ document.querySelectorAll('input[name="strategy"]').forEach(input=>{
 
 $("saveSymbols").addEventListener("click",()=>{
  const lot=Number($("lot").value);
- if(!Number.isFinite(lot)||lot<=0){
-  $("symbolsMessage").textContent="Enter a valid lot size greater than zero.";
+
+ if(!Number.isFinite(lot)||lot<0.01){
+  $("symbolsMessage").textContent=
+   "Enter a valid lot size of at least 0.01.";
   return;
  }
+
+ if(lot>100){
+  $("symbolsMessage").textContent=
+   "Lot size is too high. Check your broker's contract specifications.";
+  return;
+ }
+
  setTradeLimit($("maxTrades").value);
  saveSettings();
- $("symbolsMessage").textContent="Trading settings saved on this device.";
+ $("symbolsMessage").textContent=
+  "Settings saved on this device. They are not yet sent to a trading engine.";
 });
 
 $("refreshMarkets").addEventListener("click",refreshMarkets);
@@ -656,7 +756,7 @@ $("powerButton").addEventListener("click",startEngine);
 
 $("clearButton").addEventListener("click",()=>{
  localStorage.removeItem(URL_KEY);
- $("apiUrl").value="";
+ $("apiUrl").value=API_DEFAULT;
  apiConnected=false;
  publicConfig=null;
  setConnection(false);
@@ -669,31 +769,24 @@ $("clearButton").addEventListener("click",()=>{
  $("engineMessage").textContent="Connect your API first.";
 });
 
-function loadBroker(){
- try{
-  const data=JSON.parse(localStorage.getItem(BROKER_KEY)||"{}");
-  if(data.name)$("brokerName").value=data.name;
-  if(data.login)$("accountLogin").value=data.login;
-  if(data.server)$("brokerServer").value=data.server;
- }catch(_){}
-}
+$("category").addEventListener("change",()=>{
+ populateMarkets($("category").value);
+ saveSettings();
+});
 
 /* Initial setup */
+
+$("apiUrl").value=localStorage.getItem(URL_KEY)||API_DEFAULT;
+
 loadSettings();
 loadBroker();
 setMode(localStorage.getItem(MODE_KEY)||"scalp");
-setTradeLimit($("maxTrades").value||5);
+setTradeLimit($("maxTrades").value||1000);
 
-const savedUrl=localStorage.getItem(URL_KEY);
-if(savedUrl){
- $("apiUrl").value=savedUrl;
+populateMarkets($("category").value,$("market").value);
+
+if(localStorage.getItem(URL_KEY)){
  testAPI();
-}
-
-if("serviceWorker" in navigator){
- window.addEventListener("load",()=>{
-  navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
- });
 }
 
 })();
