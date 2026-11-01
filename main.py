@@ -213,8 +213,7 @@ def calculate_atr(highs, lows, closes, period=14):
     for tr in true_ranges[period:]:
         atr = (atr * (period - 1) + tr) / period
 
-    return atr
-    def detect_market_regime(closes):
+    return atrdef detect_market_regime(closes):
     ema50 = calculate_ema(closes, 50)
     ema200 = calculate_ema(closes, 200)
 
@@ -391,8 +390,7 @@ def build_analysis(request):
         "live_execution": False,
         "disclaimer": "Analysis only. No live trade was placed.",
         "timestamp": utc_now(),
-    }
-    @app.get("/")
+    }@app.get("/")
 def root():
     return {
         "name": "Lucidious Nova EA API",
@@ -548,8 +546,7 @@ def get_platforms():
         "platforms": SUPPORTED_PLATFORMS,
         "connected": False,
         "message": "MT4 and MT5 bridges are not implemented.",
-    }
-    @app.post("/api/trading/start")
+    }@app.post("/api/trading/start")
 def start_trading(
     command: TradingCommand,
     x_api_key: Optional[str] = Header(default=None),
