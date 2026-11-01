@@ -213,7 +213,10 @@ def calculate_atr(highs, lows, closes, period=14):
     for tr in true_ranges[period:]:
         atr = (atr * (period - 1) + tr) / period
 
-    return atrdef detect_market_regime(closes):
+    return atr
+
+
+def detect_market_regime(closes):
     ema50 = calculate_ema(closes, 50)
     ema200 = calculate_ema(closes, 200)
 
