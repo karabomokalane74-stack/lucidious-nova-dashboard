@@ -8,24 +8,16 @@ from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-
-# =========================================================
-# 1. APPLICATION CONFIGURATION
-# =========================================================
-
 APP_VERSION = "2.1.0"
 API_KEY = os.getenv("LUCIDIOUS_API_KEY", "").strip()
-TRADING_ENABLED = False  # Do not enable until a real MT5 bridge is tested.
+TRADING_ENABLED = False
 
 DASHBOARD_ORIGIN = "https://karabomokalane74-stack.github.io"
 
 app = FastAPI(
     title="Lucidious Nova EA API",
     version=APP_VERSION,
-    description=(
-        "Multi-strategy market analysis and broker-market discovery API. "
-        "This service does not execute trades or connect to MT5."
-    ),
+    description="Market analysis API. No live trade execution.",
 )
 
 app.add_middleware(
@@ -50,8 +42,6 @@ STANDARD_MARKETS = {
     "energies": ["USOIL", "UKOIL", "NATGAS"],
 }
 
-# In-memory only. Data is lost when the service restarts and is not
-# proof of a live terminal connection.
 BROKER_MARKETS = {"MT4": {}, "MT5": {}}
 
 
@@ -59,12 +49,7 @@ def utc_now():
     return datetime.now(timezone.utc).isoformat()
 
 
-# =========================================================
-# 2. AUTHENTICATION
-# =========================================================
-
 def check_api_key(provided_key: Optional[str]):
-    """Protect private API endpoints with a server-side secret. IMPORTANT: Never put LUCIDIOUS_API_KEY in GitHub Pages JavaScript. A public browser app cannot safely hold a shared secret. """
     if not API_KEY:
         raise HTTPException(
             status_code=503,
@@ -78,10 +63,6 @@ def check_api_key(provided_key: Optional[str]):
 def require_api_key(x_api_key: Optional[str] = Header(default=None)):
     check_api_key(x_api_key)
 
-
-# =========================================================
-# 3. DATA MODELS
-# =========================================================
 
 class StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -100,8 +81,8 @@ class StrategyRequest(StrictModel):
     lows: list[float] = Field(min_length=200, max_length=2000)
     closes: list[float] = Field(min_length=200, max_length=2000)
 
-@field_validator("symbol")
-@classmethod
+    @field_validator("symbol")
+    @classmethod
     def clean_symbol(cls, value):
         value = value.strip()
         if not value:
@@ -115,13 +96,13 @@ class BrokerInstrument(StrictModel):
     description: Optional[str] = Field(default=None, max_length=250)
     category: Optional[str] = Field(default=None, max_length=30)
     digits: Optional[int] = Field(default=None, ge=0, le=12)
-    volume_min: Optional[float] = Field(default=None, gt=0, le=1_000_000)
-    volume_max: Optional[float] = Field(default=None, gt=0, le=1_000_000)
-    volume_step: Optional[float] = Field(default=None, gt=0, le=1_000_000)
+    volume_min: Optional[float] = Field(default=None, gt=0, le=1000000)
+    volume_max: Optional[float] = Field(default=None, gt=0, le=1000000)
+    volume_step: Optional[float] = Field(default=None, gt=0, le=1000000)
     trade_allowed: bool = False
 
-@field_validator("name", "base_name", "category")
-@classmethod
+    @field_validator("name", "base_name", "category")
+    @classmethod
     def clean_optional_names(cls, value):
         return value.strip() if value is not None else value
 
@@ -129,21 +110,21 @@ class BrokerInstrument(StrictModel):
 class BrokerMarketUpdate(StrictModel):
     broker_name: str = Field(min_length=1, max_length=100)
     platform: str = Field(pattern=r"^(MT4|MT5)$")
-    account_currency: Optional[str] = Field(default=None, min_length=3, max_length=10)
-    instruments: list[BrokerInstrument] = Field(min_length=1, max_length=5000)
+    account_currency: Optional[str] = Field(
+        default=None, min_length=3, max_length=10
+    )
+    instruments: list[BrokerInstrument] = Field(
+        min_length=1, max_length=5000
+    )
 
-@field_validator("broker_name")
-@classmethod
+    @field_validator("broker_name")
+    @classmethod
     def clean_broker_name(cls, value):
         value = value.strip()
         if not value:
             raise ValueError("Broker name cannot be blank.")
         return value
 
-
-# =========================================================
-# 4. INPUT VALIDATION
-# =========================================================
 
 def validate_candles(highs, lows, closes):
     if not (len(highs) == len(lows) == len(closes)):
@@ -154,25 +135,33 @@ def validate_candles(highs, lows, closes):
 
     for high, low, close in zip(highs, lows, closes):
         if not all(math.isfinite(x) for x in (high, low, close)):
-            raise HTTPException(status_code=400, detail="Candle values must be finite numbers.")
+            raise HTTPException(
+                status_code=400,
+                detail="Candle values must be finite numbers.",
+            )
 
-        if low <= 0 or high <= 0 or close <= 0 or high < low or not low <= close <= high:
-            raise HTTPException(status_code=400, detail="Invalid OHLC candle values.")
+        if (
+            low <= 0 or high <= 0 or close <= 0
+            or high < low or not low <= close <= high
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid OHLC candle values.",
+            )
 
-
-# =========================================================
-# 5. TECHNICAL INDICATORS
-# =========================================================
 
 def calculate_ema(values, period):
     if not values or period < 1:
         raise ValueError("EMA requires values and a positive period.")
+
     multiplier = 2 / (period + 1)
     ema = values[0]
     result = [ema]
+
     for price in values[1:]:
         ema = price * multiplier + ema * (1 - multiplier)
         result.append(ema)
+
     return result
 
 
@@ -180,7 +169,9 @@ def calculate_rsi(values, period=14):
     if len(values) <= period:
         return 50.0
 
-    gains, losses = [], []
+    gains = []
+    losses = []
+
     for i in range(1, len(values)):
         change = values[i] - values[i - 1]
         gains.append(max(change, 0))
@@ -190,17 +181,23 @@ def calculate_rsi(values, period=14):
     avg_loss = sum(losses[:period]) / period
 
     for i in range(period, len(gains)):
-        avg_gain = (avg_gain * (period - 1) + gains[i]) / period
-        avg_loss = (avg_loss * (period - 1) + losses[i]) / period
+        avg_gain = (
+            avg_gain * (period - 1) + gains[i]
+        ) / period
+        avg_loss = (
+            avg_loss * (period - 1) + losses[i]
+        ) / period
 
     if avg_loss == 0:
         return 100.0 if avg_gain > 0 else 50.0
+
     rs = avg_gain / avg_loss
     return 100 - (100 / (1 + rs))
 
 
 def calculate_atr(highs, lows, closes, period=14):
     true_ranges = []
+
     for i in range(1, len(closes)):
         true_ranges.append(max(
             highs[i] - lows[i],
@@ -212,530 +209,418 @@ def calculate_atr(highs, lows, closes, period=14):
         return 0.0
 
     atr = sum(true_ranges[:period]) / period
+
     for tr in true_ranges[period:]:
         atr = (atr * (period - 1) + tr) / period
+
     return atr
+    def detect_market_regime(closes):
+    ema50 = calculate_ema(closes, 50)
+    ema200 = calculate_ema(closes, 200)
 
+    current_price = closes[-1]
+    fast = ema50[-1]
+    slow = ema200[-1]
 
-def calculate_adx(highs, lows, closes, period=14):
-    if len(closes) < period * 2 + 1:
-        return 0.0
+    if current_price > fast > slow:
+        return "BULLISH"
 
-    plus_dm, minus_dm, true_ranges = [], [], []
-    for i in range(1, len(closes)):
-        up_move = highs[i] - highs[i - 1]
-        down_move = lows[i - 1] - lows[i]
-        plus_dm.append(up_move if up_move > down_move and up_move > 0 else 0)
-        minus_dm.append(down_move if down_move > up_move and down_move > 0 else 0)
-        true_ranges.append(max(
-            highs[i] - lows[i],
-            abs(highs[i] - closes[i - 1]),
-            abs(lows[i] - closes[i - 1]),
-        ))
+    if current_price < fast < slow:
+        return "BEARISH"
 
-    atr = sum(true_ranges[:period])
-    plus = sum(plus_dm[:period])
-    minus = sum(minus_dm[:period])
-    dx_values = []
+    return "RANGING"
 
-    for i in range(period, len(true_ranges)):
-        atr = atr - atr / period + true_ranges[i]
-        plus = plus - plus / period + plus_dm[i]
-        minus = minus - minus / period + minus_dm[i]
-
-        if atr <= 0:
-            continue
-
-        plus_di = 100 * plus / atr
-        minus_di = 100 * minus / atr
-        denominator = plus_di + minus_di
-        dx_values.append(
-            0.0 if denominator == 0
-            else 100 * abs(plus_di - minus_di) / denominator
-        )
-
-    return sum(dx_values) / len(dx_values) if dx_values else 0.0
-
-
-def calculate_donchian(highs, lows, period=20):
-    if len(highs) <= period:
-        return None, None
-    return max(highs[-period - 1:-1]), min(lows[-period - 1:-1])
-
-
-# =========================================================
-# 6. STRATEGIES
-# =========================================================
 
 def ema_trend_strategy(closes):
     ema9 = calculate_ema(closes, 9)
     ema21 = calculate_ema(closes, 21)
     ema50 = calculate_ema(closes, 50)
-    signal = "NONE"
 
-    if ema9[-1] > ema21[-1] > ema50[-1] and closes[-1] > ema50[-1]:
-        signal = "BUY"
-    elif ema9[-1] < ema21[-1] < ema50[-1] and closes[-1] < ema50[-1]:
-        signal = "SELL"
+    if ema9[-1] > ema21[-1] > ema50[-1]:
+        return "BUY", "EMA bullish alignment"
 
-    return {
-        "strategy": "EMA_TREND_FOLLOWING",
-        "signal": signal,
-        "ema9": ema9[-1],
-        "ema21": ema21[-1],
-        "ema50": ema50[-1],
-    }
+    if ema9[-1] < ema21[-1] < ema50[-1]:
+        return "SELL", "EMA bearish alignment"
 
-
-def smc_ict_strategy(highs, lows, closes):
-    n = len(closes)
-    swing_highs = [
-        i for i in range(1, n - 1)
-        if highs[i] > highs[i - 1] and highs[i] >= highs[i + 1]
-    ]
-    swing_lows = [
-        i for i in range(1, n - 1)
-        if lows[i] < lows[i - 1] and lows[i] <= lows[i + 1]
-    ]
-
-    last_high = highs[swing_highs[-1]] if swing_highs else None
-    last_low = lows[swing_lows[-1]] if swing_lows else None
-    previous_close, latest_close = closes[-2], closes[-1]
-
-    bullish_bos = last_high is not None and previous_close <= last_high < latest_close
-    bearish_bos = last_low is not None and previous_close >= last_low > latest_close
-    bullish_sweep = last_low is not None and lows[-1] < last_low and latest_close > last_low
-    bearish_sweep = last_high is not None and highs[-1] > last_high and latest_close < last_high
-    bullish_fvg = lows[-1] > highs[-3]
-    bearish_fvg = highs[-1] < lows[-3]
-
-    signal = "BUY" if bullish_sweep and bullish_bos else (
-        "SELL" if bearish_sweep and bearish_bos else "NONE"
-    )
-
-    return {
-        "strategy": "SMC_ICT_BASIC",
-        "signal": signal,
-        "bullish_bos": bullish_bos,
-        "bearish_bos": bearish_bos,
-        "bullish_sweep": bullish_sweep,
-        "bearish_sweep": bearish_sweep,
-        "bullish_fvg": bullish_fvg,
-        "bearish_fvg": bearish_fvg,
-    }
+    return "HOLD", "No clear EMA alignment"
 
 
 def trend_pullback_strategy(closes):
-    ema21 = calculate_ema(closes, 21)
+    ema20 = calculate_ema(closes, 20)
     ema50 = calculate_ema(closes, 50)
-    ema200 = calculate_ema(closes, 200)
 
-    bullish = ema50[-1] > ema200[-1] and closes[-2] < ema21[-2] and closes[-1] > ema21[-1]
-    bearish = ema50[-1] < ema200[-1] and closes[-2] > ema21[-2] and closes[-1] < ema21[-1]
-    signal = "BUY" if bullish else ("SELL" if bearish else "NONE")
-    return {"strategy": "TREND_PULLBACK", "signal": signal}
+    price = closes[-1]
+    previous = closes[-2]
 
+    if ema20[-1] > ema50[-1] and previous <= ema20[-2] and price > ema20[-1]:
+        return "BUY", "Bullish EMA pullback"
 
-def donchian_breakout_strategy(highs, lows, closes):
-    upper, lower = calculate_donchian(highs, lows, 20)
-    if upper is None:
-        return {"strategy": "DONCHIAN_BREAKOUT", "signal": "NONE"}
+    if ema20[-1] < ema50[-1] and previous >= ema20[-2] and price < ema20[-1]:
+        return "SELL", "Bearish EMA pullback"
 
-    signal = "BUY" if closes[-1] > upper else (
-        "SELL" if closes[-1] < lower else "NONE"
-    )
-    return {
-        "strategy": "DONCHIAN_BREAKOUT",
-        "signal": signal,
-        "upper_channel": upper,
-        "lower_channel": lower,
-    }
+    return "HOLD", "No pullback confirmation"
 
 
-def mean_reversion_strategy(closes):
-    rsi = calculate_rsi(closes, 14)
-    previous_rsi = calculate_rsi(closes[:-1], 14)
-    signal = "BUY" if previous_rsi < 30 and rsi >= 30 else (
-        "SELL" if previous_rsi > 70 and rsi <= 70 else "NONE"
-    )
-    return {"strategy": "RSI_MEAN_REVERSION", "signal": signal, "rsi": rsi}
+def donchian_strategy(highs, lows, closes, period=20):
+    upper = max(highs[-period - 1:-1])
+    lower = min(lows[-period - 1:-1])
+    price = closes[-1]
+
+    if price > upper:
+        return "BUY", "Donchian upside breakout"
+
+    if price < lower:
+        return "SELL", "Donchian downside breakout"
+
+    return "HOLD", "No Donchian breakout"
+
+
+def rsi_mean_reversion_strategy(closes):
+    rsi = calculate_rsi(closes)
+
+    if rsi < 30:
+        return "BUY", "RSI oversold condition"
+
+    if rsi > 70:
+        return "SELL", "RSI overbought condition"
+
+    return "HOLD", "RSI is neutral"
 
 
 def atr_breakout_strategy(highs, lows, closes):
-    atr = calculate_atr(highs, lows, closes, 14)
-    recent_range = highs[-1] - lows[-1]
-    previous_atr = calculate_atr(highs[:-1], lows[:-1], closes[:-1], 14)
-    signal = "NONE"
-
-    if previous_atr > 0 and recent_range > previous_atr * 1.5:
-        if closes[-1] > highs[-2]:
-            signal = "BUY"
-        elif closes[-1] < lows[-2]:
-            signal = "SELL"
-
-    return {
-        "strategy": "ATR_VOLATILITY_BREAKOUT",
-        "signal": signal,
-        "atr": atr,
-        "candle_range": recent_range,
-    }
-
-
-# =========================================================
-# 7. MARKET REGIME AND STRATEGY SELECTION
-# =========================================================
-
-def detect_market_regime(highs, lows, closes):
-    adx = calculate_adx(highs, lows, closes)
-    ema50 = calculate_ema(closes, 50)
-    ema200 = calculate_ema(closes, 200)
     atr = calculate_atr(highs, lows, closes)
 
     if atr <= 0:
-        regime = "UNKNOWN"
-    elif adx >= 25:
-        regime = (
-            "BULLISH_TREND" if ema50[-1] > ema200[-1]
-            else "BEARISH_TREND" if ema50[-1] < ema200[-1]
-            else "TRENDING"
-        )
-    elif adx < 20:
-        regime = "RANGING"
+        return "HOLD", "ATR unavailable"
+
+    recent_high = max(highs[-20:-1])
+    recent_low = min(lows[-20:-1])
+    price = closes[-1]
+
+    if price > recent_high and price - recent_high >= atr * 0.1:
+        return "BUY", "ATR-confirmed upside breakout"
+
+    if price < recent_low and recent_low - price >= atr * 0.1:
+        return "SELL", "ATR-confirmed downside breakout"
+
+    return "HOLD", "No ATR breakout"
+
+
+def smc_ict_strategy(highs, lows, closes):
+    recent_high = max(highs[-20:-1])
+    recent_low = min(lows[-20:-1])
+    previous_high = max(highs[-40:-20])
+    previous_low = min(lows[-40:-20])
+
+    price = closes[-1]
+
+    if recent_low < previous_low and price > previous_low:
+        return "BUY", "Possible sell-side liquidity sweep"
+
+    if recent_high > previous_high and price < previous_high:
+        return "SELL", "Possible buy-side liquidity sweep"
+
+    return "HOLD", "No clear liquidity sweep"
+
+
+def run_strategy_bundle(highs, lows, closes):
+    strategies = {
+        "EMA_TREND": ema_trend_strategy(closes),
+        "TREND_PULLBACK": trend_pullback_strategy(closes),
+        "DONCHIAN": donchian_strategy(highs, lows, closes),
+        "RSI_MEAN_REVERSION": rsi_mean_reversion_strategy(closes),
+        "ATR_BREAKOUT": atr_breakout_strategy(highs, lows, closes),
+        "SMC_ICT": smc_ict_strategy(highs, lows, closes),
+    }
+
+    buy_count = sum(1 for signal, _ in strategies.values() if signal == "BUY")
+    sell_count = sum(1 for signal, _ in strategies.values() if signal == "SELL")
+
+    if buy_count > sell_count and buy_count >= 2:
+        overall = "BUY"
+    elif sell_count > buy_count and sell_count >= 2:
+        overall = "SELL"
     else:
-        regime = "TRANSITIONAL"
-
-    return {"regime": regime, "adx": adx, "atr": atr}
-
-
-def select_strategy(regime, ema, smc, pullback, donchian, mean_reversion, atr_breakout):
-    if regime == "BULLISH_TREND":
-        for name, result in (
-            ("SMC_ICT_BASIC", smc),
-            ("TREND_PULLBACK", pullback),
-            ("EMA_TREND_FOLLOWING", ema),
-            ("DONCHIAN_BREAKOUT", donchian),
-        ):
-            if result["signal"] == "BUY":
-                return name, "BUY"
-
-    elif regime == "BEARISH_TREND":
-        for name, result in (
-            ("SMC_ICT_BASIC", smc),
-            ("TREND_PULLBACK", pullback),
-            ("EMA_TREND_FOLLOWING", ema),
-            ("DONCHIAN_BREAKOUT", donchian),
-        ):
-            if result["signal"] == "SELL":
-                return name, "SELL"
-
-    elif regime == "RANGING":
-        if mean_reversion["signal"] != "NONE":
-            return "RSI_MEAN_REVERSION", mean_reversion["signal"]
-        if smc["signal"] != "NONE":
-            return "SMC_ICT_BASIC", smc["signal"]
-
-    elif regime == "TRANSITIONAL":
-        if atr_breakout["signal"] != "NONE":
-            return "ATR_VOLATILITY_BREAKOUT", atr_breakout["signal"]
-        if donchian["signal"] != "NONE":
-            return "DONCHIAN_BREAKOUT", donchian["signal"]
-
-    return "NONE", "NONE"
-
-
-def run_strategy_engine(request):
-    highs, lows, closes = request.highs, request.lows, request.closes
-    validate_candles(highs, lows, closes)
-
-    ema = ema_trend_strategy(closes)
-    smc = smc_ict_strategy(highs, lows, closes)
-    pullback = trend_pullback_strategy(closes)
-    donchian = donchian_breakout_strategy(highs, lows, closes)
-    mean_reversion = mean_reversion_strategy(closes)
-    atr_breakout = atr_breakout_strategy(highs, lows, closes)
-    regime_data = detect_market_regime(highs, lows, closes)
-
-    selected_strategy, selected_signal = select_strategy(
-        regime_data["regime"], ema, smc, pullback,
-        donchian, mean_reversion, atr_breakout,
-    )
+        overall = "HOLD"
 
     return {
-        "symbol": request.symbol.upper(),
-        "platform": request.platform,
-        "mode": request.mode,
-        "market_regime": regime_data,
-        "selected_strategy": selected_strategy,
-        "signal": selected_signal,
+        "overall_signal": overall,
+        "buy_votes": buy_count,
+        "sell_votes": sell_count,
         "strategies": {
-            "ema_trend": ema,
-            "smc_ict": smc,
-            "trend_pullback": pullback,
-            "donchian_breakout": donchian,
-            "mean_reversion": mean_reversion,
-            "atr_breakout": atr_breakout,
+            name: {"signal": signal, "reason": reason}
+            for name, (signal, reason) in strategies.items()
         },
-        "indicators": {
-            "rsi": calculate_rsi(closes),
-            "atr": regime_data["atr"],
-            "adx": regime_data["adx"],
-        },
-        "timestamp": utc_now(),
-        "message": "Analysis only. No order has been placed.",
     }
 
 
-# =========================================================
-# 8. BASIC ENDPOINTS
-# =========================================================
+def select_strategy_by_regime(regime):
+    if regime in ("BULLISH", "BEARISH"):
+        return ["EMA_TREND", "TREND_PULLBACK", "DONCHIAN", "SMC_ICT"]
 
-@app.get("/")
-def home():
+    return ["RSI_MEAN_REVERSION", "ATR_BREAKOUT", "SMC_ICT"]
+
+
+def build_analysis(request):
+    validate_candles(request.highs, request.lows, request.closes)
+
+    regime = detect_market_regime(request.closes)
+    bundle = run_strategy_bundle(
+        request.highs,
+        request.lows,
+        request.closes,
+    )
+
+    return {
+        "symbol": request.symbol,
+        "platform": request.platform,
+        "mode": request.mode,
+        "market_regime": regime,
+        "recommended_strategies": select_strategy_by_regime(regime),
+        "price": request.closes[-1],
+        "rsi": round(calculate_rsi(request.closes), 2),
+        "atr": round(
+            calculate_atr(
+                request.highs,
+                request.lows,
+                request.closes,
+            ),
+            8,
+        ),
+        "analysis": bundle,
+        "live_execution": False,
+        "disclaimer": "Analysis only. No live trade was placed.",
+        "timestamp": utc_now(),
+    }
+    @app.get("/")
+def root():
     return {
         "name": "Lucidious Nova EA API",
         "version": APP_VERSION,
         "status": "online",
-        "trading_enabled": False,
-        "platforms": SUPPORTED_PLATFORMS,
-        "timestamp": utc_now(),
+        "trading_enabled": TRADING_ENABLED,
+        "live_execution": False,
     }
 
 
 @app.get("/health")
 def health():
-    return {"status": "healthy"}
+    return {
+        "status": "healthy",
+        "service": "Lucidious Nova EA API",
+        "timestamp": utc_now(),
+    }
 
 
 @app.get("/api/public-config")
 def public_config():
     return {
-        "name": "Lucidious Nova EA",
-        "version": APP_VERSION,
-        "supported_markets": STANDARD_MARKETS,
-        "platforms": SUPPORTED_PLATFORMS,
-        "trading_enabled": False,
-        "live_prices_connected": False,
-        "automatic_strategy_selection": True,
-        "message": "Analysis API only. No MT5 execution bridge is connected.",
+        "app_name": "Lucidious Nova EA",
+        "api_version": APP_VERSION,
+        "trading_enabled": TRADING_ENABLED,
+        "supported_platforms": SUPPORTED_PLATFORMS,
+        "live_execution": False,
+        "authentication_configured": bool(API_KEY),
     }
 
 
 @app.get("/api/status")
-def status(x_api_key: Optional[str] = Header(default=None)):
-    check_api_key(x_api_key)
+def api_status():
     return {
         "api": "online",
-        "mt4_bridge": "not_connected",
-        "mt5_bridge": "not_connected",
-        "live_trading_enabled": False,
-        "message": "No verified execution bridge is connected. Trading is disabled.",
+        "version": APP_VERSION,
+        "trading_enabled": TRADING_ENABLED,
+        "mt4_connected": False,
+        "mt5_connected": False,
+        "live_execution": False,
+        "message": "No trading terminal bridge is connected.",
+        "timestamp": utc_now(),
     }
 
 
-# =========================================================
-# 9. TRADING CONTROL - INTENTIONALLY DISABLED
-# =========================================================
-
-@app.post("/api/trading")
-def trading_command( command: TradingCommand, x_api_key: Optional[str] = Header(default=None), ):
-    check_api_key(x_api_key)
-    raise HTTPException(
-        status_code=409,
-        detail=(
-            "Trading is disabled. This API has no verified MT5 execution "
-            "bridge, account authorization, or tested risk controls."
-        ),
-    )
-
-
-# =========================================================
-# 10. STRATEGY ENDPOINTS
-# =========================================================
-
-@app.post("/api/strategy/analyze")
-def analyze_market( request: StrategyRequest, x_api_key: Optional[str] = Header(default=None), ):
-    check_api_key(x_api_key)
-    return run_strategy_engine(request)
-
-
-@app.post("/api/strategy/signal")
-def strategy_signal( request: StrategyRequest, x_api_key: Optional[str] = Header(default=None), ):
-    check_api_key(x_api_key)
-    result = run_strategy_engine(request)
+@app.get("/api/markets")
+def get_standard_markets():
     return {
-        "symbol": result["symbol"],
-        "platform": result["platform"],
-        "signal": result["signal"],
-        "strategy": result["selected_strategy"],
-        "market_regime": result["market_regime"],
-        "message": result["message"],
+        "markets": STANDARD_MARKETS,
+        "source": "standard catalogue",
+        "live_broker_data": False,
     }
 
 
-@app.post("/api/strategy/smc-ict")
-def smc_ict_endpoint( request: StrategyRequest, x_api_key: Optional[str] = Header(default=None), ):
+@app.get("/api/broker/markets")
+def get_broker_markets(
+    platform: str = Query(default="MT5", pattern=r"^(MT4|MT5)$"),
+    x_api_key: Optional[str] = Header(default=None),
+):
     check_api_key(x_api_key)
-    validate_candles(request.highs, request.lows, request.closes)
-    result = smc_ict_strategy(request.highs, request.lows, request.closes)
+
     return {
-        "symbol": request.symbol.upper(),
-        "platform": request.platform,
-        **result,
+        "platform": platform,
+        "markets": BROKER_MARKETS[platform],
+        "source": "temporary in-memory catalogue",
+        "terminal_connected": False,
+        "live_broker_data": False,
     }
 
-
-# =========================================================
-# 11. BROKER MARKET DISCOVERY
-# =========================================================
 
 @app.post("/api/broker/markets")
-def receive_broker_markets( request: BrokerMarketUpdate, x_api_key: Optional[str] = Header(default=None), ):
+def update_broker_markets(
+    update: BrokerMarketUpdate,
+    x_api_key: Optional[str] = Header(default=None),
+):
     check_api_key(x_api_key)
 
-    instruments = [item.model_dump() for item in request.instruments]
-    names = [item["name"].upper() for item in instruments]
-    if len(names) != len(set(names)):
-        raise HTTPException(status_code=400, detail="Duplicate instrument names supplied.")
+    names = [item.name.upper() for item in update.instruments]
 
-    for item in instruments:
+    if len(names) != len(set(names)):
+        raise HTTPException(
+            status_code=400,
+            detail="Duplicate instrument names are not allowed.",
+        )
+
+    for instrument in update.instruments:
         if (
-            item["volume_min"] is not None
-            and item["volume_max"] is not None
-            and item["volume_min"] > item["volume_max"]
+            instrument.volume_min is not None
+            and instrument.volume_max is not None
+            and instrument.volume_min > instrument.volume_max
         ):
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid volume limits for {item['name']}.",
+                detail=f"Invalid volume limits for {instrument.name}.",
             )
 
-    BROKER_MARKETS[request.platform] = {
-        "broker_name": request.broker_name,
-        "platform": request.platform,
-        "account_currency": request.account_currency,
-        "instruments": instruments,
-        "total_markets": len(instruments),
+    BROKER_MARKETS[update.platform] = {
+        "broker_name": update.broker_name,
+        "account_currency": update.account_currency,
+        "instruments": [
+            item.model_dump() for item in update.instruments
+        ],
         "updated_at": utc_now(),
     }
 
     return {
         "success": True,
-        "broker": request.broker_name,
-        "platform": request.platform,
-        "markets_received": len(instruments),
-        "message": (
-            "Catalogue received in temporary memory. "
-            "This does not verify a live terminal connection."
+        "message": "Temporary instrument catalogue updated.",
+        "platform": update.platform,
+        "instrument_count": len(update.instruments),
+        "terminal_connected": False,
+        "live_broker_data": False,
+    }
+
+
+@app.post("/api/analyze")
+def analyze_market(
+    request: StrategyRequest,
+    x_api_key: Optional[str] = Header(default=None),
+):
+    check_api_key(x_api_key)
+    return build_analysis(request)
+
+
+@app.post("/api/strategy")
+def strategy_analysis(
+    request: StrategyRequest,
+    x_api_key: Optional[str] = Header(default=None),
+):
+    check_api_key(x_api_key)
+    return build_analysis(request)
+
+
+@app.get("/api/strategies")
+def get_strategies():
+    return {
+        "strategies": [
+            "EMA_TREND",
+            "SMC_ICT",
+            "TREND_PULLBACK",
+            "DONCHIAN",
+            "RSI_MEAN_REVERSION",
+            "ATR_BREAKOUT",
+            "AUTO_REGIME_SELECTION",
+        ],
+        "description": "Rule-based analysis strategies. Not profit-guaranteed.",
+    }
+
+
+@app.get("/api/platforms")
+def get_platforms():
+    return {
+        "platforms": SUPPORTED_PLATFORMS,
+        "connected": False,
+        "message": "MT4 and MT5 bridges are not implemented.",
+    }
+    @app.post("/api/trading/start")
+def start_trading(
+    command: TradingCommand,
+    x_api_key: Optional[str] = Header(default=None),
+):
+    check_api_key(x_api_key)
+
+    raise HTTPException(
+        status_code=409,
+        detail=(
+            "Trading is disabled. No MT4 or MT5 bridge is connected. "
+            "No trade has been placed."
         ),
+    )
+
+
+@app.post("/api/trading/stop")
+def stop_trading(
+    command: TradingCommand,
+    x_api_key: Optional[str] = Header(default=None),
+):
+    check_api_key(x_api_key)
+
+    return {
+        "success": True,
+        "trading": False,
+        "message": "No live trading engine is running.",
     }
 
 
-@app.get("/api/markets/all")
-def get_all_markets( platform: str = Query(default="MT5", pattern=r"^(MT4|MT5|mt4|mt5)$"), category: Optional[str] = Query(default=None, max_length=30), tradable_only: bool = False, x_api_key: Optional[str] = Header(default=None), ):
+@app.get("/api/trading/status")
+def trading_status():
+    return {
+        "trading_enabled": TRADING_ENABLED,
+        "running": False,
+        "mt4_connected": False,
+        "mt5_connected": False,
+        "live_execution": False,
+        "message": "Trading engine is not connected.",
+    }
+
+
+@app.get("/api/account")
+def account_status(
+    x_api_key: Optional[str] = Header(default=None),
+):
     check_api_key(x_api_key)
-    platform = platform.upper()
-    catalogue = BROKER_MARKETS[platform]
-
-    if not catalogue:
-        return {
-            "connected": False,
-            "platform": platform,
-            "markets": [],
-            "total": 0,
-            "message": "No broker catalogue received.",
-        }
-
-    markets = catalogue["instruments"]
-    if category:
-        markets = [
-            item for item in markets
-            if (item.get("category") or "").lower() == category.strip().lower()
-        ]
-    if tradable_only:
-        markets = [item for item in markets if item["trade_allowed"]]
 
     return {
         "connected": False,
-        "catalogue_received": True,
-        "broker": catalogue["broker_name"],
-        "platform": platform,
-        "total": len(markets),
-        "markets": markets,
-        "updated_at": catalogue["updated_at"],
-        "message": "Cached catalogue only; terminal connection is not verified.",
+        "balance": None,
+        "equity": None,
+        "currency": None,
+        "message": "No broker account is connected.",
     }
 
 
-@app.get("/api/markets/search")
-def search_markets( q: str = Query(min_length=1, max_length=100), platform: str = Query(default="MT5", pattern=r"^(MT4|MT5|mt4|mt5)$"), x_api_key: Optional[str] = Header(default=None), ):
-    check_api_key(x_api_key)
-    platform = platform.upper()
-    query = q.strip().lower()
-    if not query:
-        raise HTTPException(status_code=400, detail="Enter a market name.")
-
-    catalogue = BROKER_MARKETS[platform]
-    if not catalogue:
-        return {"connected": False, "results": [], "total": 0}
-
-    results = [
-        item for item in catalogue["instruments"]
-        if query in item["name"].lower()
-        or query in (item.get("description") or "").lower()
-    ]
+@app.get("/api/safety")
+def safety_status():
     return {
-        "connected": False,
-        "catalogue_received": True,
-        "query": q,
-        "results": results,
-        "total": len(results),
+        "trading_enabled": TRADING_ENABLED,
+        "live_execution": False,
+        "mt4_bridge_connected": False,
+        "mt5_bridge_connected": False,
+        "safe_to_execute": False,
+        "message": "Live execution is unavailable.",
     }
 
 
-@app.get("/api/broker/match")
-def match_broker_symbol( market: str = Query(min_length=1, max_length=30), platform: str = Query(default="MT5", pattern=r"^(MT4|MT5|mt4|mt5)$"), x_api_key: Optional[str] = Header(default=None), ):
-    check_api_key(x_api_key)
-    platform = platform.upper()
-    market = market.upper().strip()
-    standard_symbols = {
-        symbol for group in STANDARD_MARKETS.values() for symbol in group
-    }
-
-    if market not in standard_symbols:
-        raise HTTPException(status_code=400, detail="Market is not in the standard catalogue.")
-
-    catalogue = BROKER_MARKETS[platform]
-    if not catalogue:
-        return {
-            "matched": False,
-            "market": market,
-            "matches": [],
-            "message": "No broker catalogue received.",
-        }
-
-    matches = []
-    for item in catalogue["instruments"]:
-        name = item["name"].upper()
-        base = (item.get("base_name") or "").upper()
-        if base == market or name == market:
-            matches.append(item)
-        elif name.startswith(market) and len(name) <= len(market) + 10:
-            matches.append(item)
-
+@app.get("/api/time")
+def server_time():
     return {
-        "matched": bool(matches),
-        "market": market,
-        "matches": matches,
-        "requires_confirmation": len(matches) > 1,
-        "message": "Confirm the correct broker symbol." if matches else "No matching symbol found.",
-    }
-
-
-@app.get("/api/markets")
-def get_supported_markets(x_api_key: Optional[str] = Header(default=None)):
-    check_api_key(x_api_key)
-    return {
-        "name": "Lucidious Nova EA",
-        "markets": STANDARD_MARKETS,
-        "trading_enabled": False,
-        "message": "Standard market catalogue.",
+        "utc": utc_now(),
+        "timezone": "UTC",
     }
